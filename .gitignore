@@ -1,0 +1,27 @@
+# Binaries
+bin/
+obj/
+
+# Visual Studio / IDE
+.vs/
+.vscode/
+.claude/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Mac
+.DS_Store
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# MonoGame specific
+# If you don't want to track intermediate content build files:
+# */obj/x86/Debug/
+# */bin/x86/Debug/

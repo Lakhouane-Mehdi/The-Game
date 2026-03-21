@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "sword",
+      "name": "Fighter's Sword",
+      "spriteIndex": 0,
+      "spritePath": "Sprites/Weapons/big_sword.png",
+      "ammoCount": -1,
+      "effectType": "melee",
+      "damage": 1,
+      "range": 36,
+      "cooldown": 0.45,
+      "description": "A trusty blade. Press Space to swing."
+    },
+    {
+      "id": "boomerang",
+      "name": "Boomerang",
+      "spriteIndex": 1,
+      "spritePath": "Sprites/Weapons/bone.png",
+      "ammoCount": -1,
+      "effectType": "projectile_return",
+      "damage": 1,
+      "range": 150,
+      "cooldown": 0.8,
+      "speed": 280,
+      "description": "Flies out and returns. Stuns enemies on hit."
+    },
+    {
+      "id": "bow",
+      "name": "Hero's Bow",
+      "spriteIndex": 2,
+      "spritePath": "Sprites/Weapons/axe.png",
+      "ammoCount": 10,
+      "effectType": "projectile",
+      "damage": 2,
+      "range": 300,
+      "cooldown": 0.5,
+      "speed": 350,
+      "description": "Fires arrows. Costs 1 ammo per shot."
+    },
+    {
+      "id": "bomb",
+      "name": "Bomb",
+      "spriteIndex": 3,
+      "spritePath": "Sprites/Weapons/club.png",
+      "ammoCount": 5,
+      "effectType": "aoe",
+      "damage": 3,
+      "range": 48,
+      "cooldown": 1.5,
+      "fuseTime": 2.0,
+      "description": "Explodes after 2 seconds. Breaks cracked walls."
+    },
+    {
+      "id": "magic_book",
+      "name": "Book of Flames",
+      "spriteIndex": 4,
+      "spritePath": "Sprites/Weapons/book.png",
+      "ammoCount": 8,
+      "effectType": "projectile",
+      "damage": 2,
+      "range": 200,
+      "cooldown": 0.6,
+      "speed": 220,
+      "description": "Hurls a fireball. Costs 1 magic charge."
+    }
+  ]
+}
