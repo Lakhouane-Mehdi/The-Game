@@ -28,6 +28,9 @@ namespace TheGame.Entities
             HitboxHeight = 30;
             HitboxOffset = new Vector2(16, 20);
 
+            // Raccoon sprites are 240x240 — scale down to ~72x72
+            DrawScale = 72f / 240f;
+
             // Replace the default chase/attack states with advanced AI
             SM.AddState("idle",   new EnemyWanderState());  // wander instead of stand still
             SM.AddState("circle", new EnemyCircleState());  // orbit + dash
@@ -39,7 +42,8 @@ namespace TheGame.Entities
             Animations["move"] = LoadAnimFromFolder("Sprites/Monsters/raccoon/move");
             Animations["attack"] = LoadAnimFromFolder("Sprites/Monsters/raccoon/attack", 0.1f);
 
-            Sprite = Animations["idle"].CurrentFrame;
+            Sprite = Animations["idle"].CurrentTexture;
+            SpriteSourceRect = Animations["idle"].CurrentSourceRect;
             InitStateMachine();
         }
 

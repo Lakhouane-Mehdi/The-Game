@@ -1,0 +1,39 @@
+{
+  "old_man_elam": {
+    "name": "OLD MAN ELAM",
+    "default": [
+      { "speaker": "OLD MAN ELAM", "text": "AH... A TUNER. I HAVEN'T SEEN ONE IN YEARS. THE STILLNESS TOOK MOST OF YOUR KIND." },
+      { "speaker": "OLD MAN ELAM", "text": "LISTEN CAREFULLY. THE GREAT TUNING FORK IN THE NORTH DUNGEON HAS GONE SILENT. WITHOUT ITS RESONANCE... EVERYTHING FADES." },
+      { "speaker": "OLD MAN ELAM", "text": "YOU WILL NEED THE ECHO. A BOOMERANG THAT CAN AWAKEN THE SOUND-CRYSTALS. FIND IT IN THE EASTERN RUINS." },
+      { "speaker": "OLD MAN ELAM", "text": "BE CAREFUL, MEHDI. THE BAMBOOS WERE ONCE PEOPLE. THE STILLNESS HOLLOWED THEM OUT. THEY FEEL NOTHING NOW." }
+    ],
+    "quest_complete": [
+      { "speaker": "OLD MAN ELAM", "text": "YOU FOUND THE ECHO! GOOD. NOW STRIKE THE SOUND-CRYSTALS AND FOLLOW THE RESONANCE TO THE NORTH DUNGEON." },
+      { "speaker": "OLD MAN ELAM", "text": "THE RACCOON GUARDIAN BLOCKS THE PATH. IT WAS ONCE A PROTECTOR... NOW IT SERVES THE STILLNESS." }
+    ]
+  },
+  "silent_guard": {
+    "name": "SILENT GUARD",
+    "default": [
+      { "speaker": "SILENT GUARD", "text": "..." },
+      { "speaker": "SILENT GUARD", "text": "...THE PATH... IS SEALED..." },
+      { "speaker": "SILENT GUARD", "text": "BRING... THE ECHO... ONLY ITS RESONANCE... CAN OPEN... THIS GATE..." }
+    ],
+    "quest_complete": [
+      { "speaker": "SILENT GUARD", "text": "...YOU CARRY... THE ECHO..." },
+      { "speaker": "SILENT GUARD", "text": "THE PATH... OPENS... GO... BEFORE THE STILLNESS... TAKES ME TOO..." }
+    ]
+  },
+  "mysterious_pot": {
+    "name": "A MYSTERIOUS POT",
+    "default": [
+      { "speaker": "???", "text": "HEY! HEY YOU! DONT EVEN THINK ABOUT IT!" },
+      { "speaker": "THE POT", "text": "I SAW WHAT YOU DID TO MY COUSINS IN THE OTHER ROOM. SAVAGES. ALL OF YOU TUNERS ARE THE SAME." },
+      { "speaker": "THE POT", "text": "JUST WALK AWAY. THERE IS NOTHING INSIDE ME. DEFINITELY NOT A HEART. NOPE. NOTHING." }
+    ],
+    "quest_complete": [
+      { "speaker": "THE POT", "text": "OH GREAT. YOURE BACK. LISTEN, I HEARD YOU BEAT THE RACCOON. VERY IMPRESSIVE." },
+      { "speaker": "THE POT", "text": "FINE. TAKE WHAT IS INSIDE ME. BUT KNOW THAT I WILL HAUNT YOUR INVENTORY FOREVER." }
+    ]
+  }
+}

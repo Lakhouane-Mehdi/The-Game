@@ -33,8 +33,9 @@ namespace TheGame.Entities
         // ── Input (exposed for states) ──
         public KeyboardState PrevKeyboard { get; private set; }
 
-        // ── Inventory ──
+        // ── Inventory & Party ──
         public Inventory Inventory { get; } = new Inventory();
+        public PartyManager Party { get; } = new PartyManager();
 
         // ── Projectiles (managed by the overworld, spawned by player) ──
         /// <summary>
@@ -43,20 +44,17 @@ namespace TheGame.Entities
         /// </summary>
         public Action<Projectile> OnSpawnProjectile { get; set; }
 
-        // ── Animations ──
-        private Dictionary<FacingDirection, SpriteAnimation> _walkAnims;
-        private Dictionary<FacingDirection, Texture2D> _idleSprites;
-        private Dictionary<FacingDirection, Texture2D> _attackSprites;
-
         // ── Constructor ──
 
         public Player(Vector2 startPosition)
             : base(startPosition, maxHealth: 6)
         {
             Speed = 160f;
-            HitboxWidth = 24;
-            HitboxHeight = 24;
-            HitboxOffset = new Vector2(20, 30);
+            DrawScale = 2f;
+            HitboxWidth = 28;
+            HitboxHeight = 28;
+            HitboxOffset = new Vector2(18, 36); // adjusted explicitly for 64x64 bounds
+            PrevKeyboard = Keyboard.GetState();
 
             _sm = new StateMachine<Player>(this);
             _sm.AddState("idle",     new PlayerIdleState());
@@ -64,65 +62,91 @@ namespace TheGame.Entities
             _sm.AddState("attack",   new PlayerAttackState());
             _sm.AddState("cooldown", new PlayerCooldownState());
             _sm.AddState("item",     new PlayerItemState());
+            _sm.AddState("capture",  new PlayerCaptureState());
         }
+
+        // Layer sets
+        private Dictionary<FacingDirection, SpriteAnimation[]> _walkAnimsLayers;
+        private Dictionary<FacingDirection, SpriteAnimation[]> _idleAnimsLayers;
+        private Dictionary<FacingDirection, SpriteAnimation[]> _attackAnimsLayers;
 
         public void LoadContent()
         {
-            _walkAnims = new Dictionary<FacingDirection, SpriteAnimation>
+            // Base Layers
+            Texture2D walkBody = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Player_Base_Running.png");
+            Texture2D idleBody = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Player_Base_Idle.png");
+            Texture2D attackBody = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Player_Base_Attack.png");
+            
+            // Accessories Options
+            Texture2D walkHair = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Running.png");
+            Texture2D idleHair = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Idle.png");
+            Texture2D attackHair = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Attack.png");
+            
+            Texture2D walkShirt = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Running.png");
+            Texture2D idleShirt = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Idle.png");
+            Texture2D attackShirt = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Attack.png");
+
+            Texture2D walkPants = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Running.png");
+            Texture2D idlePants = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Idle.png");
+            Texture2D attackPants = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Attack.png");
+
+            Texture2D walkShoes = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Running.png");
+            Texture2D idleShoes = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Idle.png");
+            Texture2D attackShoes = AssetLoader.LoadTexture("Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Attack.png");
+
+            // Combine into layers: 0=Body, 1=Pants, 2=Shoes, 3=Shirt, 4=Hair
+            _walkAnimsLayers = new Dictionary<FacingDirection, SpriteAnimation[]>
             {
-                [FacingDirection.Down] = new SpriteAnimation(new[]
-                {
-                    AssetLoader.LoadTexture("Sprites/Player/down_0.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/down_1.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/down_2.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/down_3.png"),
-                }, 0.12f),
-                [FacingDirection.Up] = new SpriteAnimation(new[]
-                {
-                    AssetLoader.LoadTexture("Sprites/Player/up_0.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/up_1.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/up_2.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/up_3.png"),
-                }, 0.12f),
-                [FacingDirection.Left] = new SpriteAnimation(new[]
-                {
-                    AssetLoader.LoadTexture("Sprites/Player/left_0.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/left_1.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/left_2.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/left_3.png"),
-                }, 0.12f),
-                [FacingDirection.Right] = new SpriteAnimation(new[]
-                {
-                    AssetLoader.LoadTexture("Sprites/Player/right_0.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/right_1.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/right_2.png"),
-                    AssetLoader.LoadTexture("Sprites/Player/right_3.png"),
-                }, 0.12f),
+                [FacingDirection.Down]  = SetupLayer(walkBody, walkPants, walkShoes, walkShirt, walkHair, 6, 0, 0.1f),
+                [FacingDirection.Right] = SetupLayer(walkBody, walkPants, walkShoes, walkShirt, walkHair, 6, 6, 0.1f),
+                [FacingDirection.Up]    = SetupLayer(walkBody, walkPants, walkShoes, walkShirt, walkHair, 6, 12, 0.1f),
+                [FacingDirection.Left]  = SetupLayer(walkBody, walkPants, walkShoes, walkShirt, walkHair, 6, 6, 0.1f),
             };
 
-            _idleSprites = new Dictionary<FacingDirection, Texture2D>
+            _idleAnimsLayers = new Dictionary<FacingDirection, SpriteAnimation[]>
             {
-                [FacingDirection.Down] = AssetLoader.LoadTexture("Sprites/Player/idle_down.png"),
-                [FacingDirection.Up] = AssetLoader.LoadTexture("Sprites/Player/idle_up.png"),
-                [FacingDirection.Left] = AssetLoader.LoadTexture("Sprites/Player/idle_left.png"),
-                [FacingDirection.Right] = AssetLoader.LoadTexture("Sprites/Player/idle_right.png"),
+                [FacingDirection.Down]  = SetupLayer(idleBody, idlePants, idleShoes, idleShirt, idleHair, 6, 0, 0.15f),
+                [FacingDirection.Right] = SetupLayer(idleBody, idlePants, idleShoes, idleShirt, idleHair, 6, 6, 0.15f),
+                [FacingDirection.Up]    = SetupLayer(idleBody, idlePants, idleShoes, idleShirt, idleHair, 6, 12, 0.15f),
+                [FacingDirection.Left]  = SetupLayer(idleBody, idlePants, idleShoes, idleShirt, idleHair, 6, 6, 0.15f),
             };
 
-            _attackSprites = new Dictionary<FacingDirection, Texture2D>
+            _attackAnimsLayers = new Dictionary<FacingDirection, SpriteAnimation[]>
             {
-                [FacingDirection.Down] = AssetLoader.LoadTexture("Sprites/Player/attack_down.png"),
-                [FacingDirection.Up] = AssetLoader.LoadTexture("Sprites/Player/attack_up.png"),
-                [FacingDirection.Left] = AssetLoader.LoadTexture("Sprites/Player/attack_left.png"),
-                [FacingDirection.Right] = AssetLoader.LoadTexture("Sprites/Player/attack_right.png"),
+                [FacingDirection.Down]  = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 0, 0.08f, false),
+                [FacingDirection.Right] = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 4, 0.08f, false),
+                [FacingDirection.Up]    = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 8, 0.08f, false),
+                [FacingDirection.Left]  = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 4, 0.08f, false),
             };
 
-            Sprite = _idleSprites[FacingDirection.Down];
             _sm.ForceState("idle");
+        }
+        
+        private SpriteAnimation[] SetupLayer(Texture2D t1, Texture2D t2, Texture2D t3, Texture2D t4, Texture2D t5, int framesCount, int startIndex, float dur, bool loop = true)
+        {
+            return new SpriteAnimation[] {
+                new SpriteAnimation(t1, 32, 32, framesCount, startIndex, dur, loop),
+                new SpriteAnimation(t2, 32, 32, framesCount, startIndex, dur, loop),
+                new SpriteAnimation(t3, 32, 32, framesCount, startIndex, dur, loop),
+                new SpriteAnimation(t4, 32, 32, framesCount, startIndex, dur, loop),
+                new SpriteAnimation(t5, 32, 32, framesCount, startIndex, dur, loop)
+            };
         }
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            
+            // Play idle animation implicitly if not moving/attacking
+            if (_sm.CurrentStateName == "idle")
+            {
+                UpdateAnimationMap(_idleAnimsLayers, (float)gameTime.ElapsedGameTime.TotalSeconds);
+            }
+            else if (_sm.CurrentStateName == "attack")
+            {
+                UpdateAnimationMap(_attackAnimsLayers, (float)gameTime.ElapsedGameTime.TotalSeconds);
+            }
+            
             _sm.Update(gameTime);
             PrevKeyboard = Keyboard.GetState();
         }
@@ -143,31 +167,43 @@ namespace TheGame.Entities
 
         public void UpdateWalkAnimation(float dt)
         {
-            if (_walkAnims != null && _walkAnims.ContainsKey(Facing))
+            UpdateAnimationMap(_walkAnimsLayers, dt);
+        }
+        
+        private void UpdateAnimationMap(Dictionary<FacingDirection, SpriteAnimation[]> map, float dt)
+        {
+            if (map != null && map.ContainsKey(Facing))
             {
-                _walkAnims[Facing].Update(dt);
-                Sprite = _walkAnims[Facing].CurrentFrame;
-                foreach (var kv in _walkAnims)
-                    if (kv.Key != Facing) kv.Value.Reset();
+                var layers = map[Facing];
+                for (int i=0; i<layers.Length; i++) layers[i].Update(dt);
+                
+                Sprite = layers[0].CurrentTexture;
+                SpriteSourceRect = layers[0].CurrentSourceRect;
+                
+                ExtraLayerSprites.Clear();
+                for (int i=1; i<layers.Length; i++) ExtraLayerSprites.Add(layers[i].CurrentTexture);
+
+                foreach (var kv in map)
+                    if (kv.Key != Facing) 
+                        foreach (var l in kv.Value) l.Reset();
             }
         }
 
         public void ResetWalkAnimations()
         {
-            if (_walkAnims != null)
-                foreach (var kv in _walkAnims) kv.Value.Reset();
+            if (_walkAnimsLayers != null)
+                foreach (var kv in _walkAnimsLayers) 
+                    foreach (var l in kv.Value) l.Reset();
         }
 
         public void SetIdleSprite()
         {
-            if (_idleSprites != null && _idleSprites.ContainsKey(Facing))
-                Sprite = _idleSprites[Facing];
+            UpdateAnimationMap(_idleAnimsLayers, 0f);
         }
 
         public void SetAttackSprite()
         {
-            if (_attackSprites != null && _attackSprites.ContainsKey(Facing))
-                Sprite = _attackSprites[Facing];
+            UpdateAnimationMap(_attackAnimsLayers, 0f);
         }
 
         // ── Attack hitbox (called by states) ──
@@ -208,7 +244,7 @@ namespace TheGame.Entities
         {
             var item = Inventory.EquippedItem;
             if (item == null) return;
-            if (!Inventory.ConsumeAmmo(item.Id)) return;
+            if (!Inventory.ConsumeItem(item)) return;
 
             // Direction based on facing
             Vector2 dir = Facing switch
@@ -223,7 +259,7 @@ namespace TheGame.Entities
             // Spawn position (in front of the player)
             Vector2 spawnPos = new Vector2(BoundingBox.Center.X - 16, BoundingBox.Center.Y - 16);
 
-            bool isBoomerang = item.Effect == EffectType.ProjectileReturn;
+            bool isBoomerang = item.EffectType == EffectType.ProjectileReturn;
 
             // Capture player reference for boomerang return
             Player self = this;
@@ -250,13 +286,8 @@ namespace TheGame.Entities
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (Sprite == null || !IsAlive) return;
-
-            Color drawColor = Tint;
-            if (IsInvincible && ((int)(InvincibilityTimer * 10) % 2 == 0))
-                drawColor = Color.Transparent;
-
-            spriteBatch.Draw(Sprite, Position, drawColor);
+            // Use the base Entity.Draw which handles shadow, scale, and invincibility blink
+            base.Draw(spriteBatch);
         }
     }
 }

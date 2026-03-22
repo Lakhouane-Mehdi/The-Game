@@ -41,6 +41,13 @@ namespace TheGame.Entities.PlayerStates
                 }
             }
 
+            // Echo Pulse — R key (edge-triggered)
+            if (kb.IsKeyDown(Keys.R) && player.PrevKeyboard.IsKeyUp(Keys.R))
+            {
+                sm.SetState("capture");
+                return;
+            }
+
             // Cycle inventory — Q / E (edge-triggered)
             if (kb.IsKeyDown(Keys.Q) && player.PrevKeyboard.IsKeyUp(Keys.Q))
                 player.Inventory.CyclePrev();

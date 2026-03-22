@@ -39,6 +39,7 @@ namespace TheGame.Entities.Environment
             (int)Position.X, (int)Position.Y, Width, Height);
 
         // ── State ──
+        public string UniqueId { get; set; }
         public bool IsDestroyed { get; private set; }
         public bool CanRemove { get; private set; }
 
@@ -64,6 +65,9 @@ namespace TheGame.Entities.Environment
             Position = position;
             Sprite = sprite;
             Drop = drop;
+            // Default display size — will scale the sprite to fit
+            Width = 36;
+            Height = 36;
         }
 
         /// <summary>
@@ -74,6 +78,11 @@ namespace TheGame.Entities.Environment
             if (IsDestroyed) return;
             IsDestroyed = true;
             _destroyTimer = 0f;
+
+            if (!string.IsNullOrEmpty(UniqueId))
+            {
+                TheGame.Systems.WorldStateManager.SetFlag(UniqueId, true);
+            }
 
             // Spawn drop slightly offset
             if (Drop != DropType.None)
@@ -133,28 +142,48 @@ namespace TheGame.Entities.Environment
         {
             Texture2D px = Game1.PixelTexture;
 
-            // Draw the breakable (with fade on destroy)
+            // Draw shadow
+            if (!IsDestroyed)
+            {
+                int shadowW = (int)(Width * 0.8f);
+                int shadowH = (int)(Width * 0.3f);
+                sb.Draw(px, new Rectangle(
+                    (int)Position.X + Width / 2 - shadowW / 2,
+                    (int)Position.Y + Height - shadowH / 2,
+                    shadowW, shadowH), Color.Black * 0.2f);
+            }
+
+            // Draw the breakable (scaled to Width x Height)
             if (!IsDestroyed && Sprite != null)
             {
-                sb.Draw(Sprite, Position, Color.White);
+                sb.Draw(Sprite,
+                    new Rectangle((int)Position.X, (int)Position.Y, Width, Height),
+                    Color.White);
             }
             else if (IsDestroyed && _destroyTimer < DestroyFadeTime && Sprite != null)
             {
-                // Shatter effect: shrink + fade
+                // Shatter effect: shrink + fade + spin
                 float t = _destroyTimer / DestroyFadeTime;
                 float scale = 1f - t * 0.5f;
                 float alpha = 1f - t;
+                int dw = (int)(Width * scale);
+                int dh = (int)(Height * scale);
                 Vector2 origin = new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
-                sb.Draw(Sprite, Position + origin, null, Color.White * alpha,
-                    t * 2f, origin, scale, SpriteEffects.None, 0f);
+                sb.Draw(Sprite, Position + new Vector2(Width / 2f, Height / 2f),
+                    null, Color.White * alpha,
+                    t * 3f, origin, scale * ((float)Width / Sprite.Width),
+                    SpriteEffects.None, 0f);
             }
 
             // Draw the drop
             if (DropActive)
             {
-                // Pulsing pickup
                 float pulse = 1f + MathF.Sin(_dropLifeTimer * 6f) * 0.15f;
-                int size = (int)(12 * pulse);
+                int dx = (int)DropPosition.X;
+                int dy = (int)DropPosition.Y;
+                // Floating bob
+                dy += (int)(MathF.Sin(_dropLifeTimer * 3f) * 3f);
+
                 Color dropColor = Drop switch
                 {
                     DropType.Heart => Color.Red,
@@ -162,10 +191,44 @@ namespace TheGame.Entities.Environment
                     DropType.Key => Color.Gold,
                     _ => Color.White
                 };
-                sb.Draw(px, new Rectangle(
-                    (int)DropPosition.X - size / 2,
-                    (int)DropPosition.Y - size / 2,
-                    size, size), dropColor);
+
+                // Glow ring
+                int glowSize = (int)(20 * pulse);
+                sb.Draw(px, new Rectangle(dx - glowSize / 2, dy - glowSize / 2, glowSize, glowSize),
+                    dropColor * 0.15f);
+
+                // Draw distinct icons per drop type
+                if (Drop == DropType.Heart)
+                {
+                    // Heart shape
+                    sb.Draw(px, new Rectangle(dx - 5, dy - 3, 4, 4), Color.Red);
+                    sb.Draw(px, new Rectangle(dx + 1, dy - 3, 4, 4), Color.Red);
+                    sb.Draw(px, new Rectangle(dx - 6, dy - 1, 12, 4), Color.Red);
+                    sb.Draw(px, new Rectangle(dx - 4, dy + 3, 8, 3), Color.Red);
+                    sb.Draw(px, new Rectangle(dx - 2, dy + 5, 4, 2), Color.Red);
+                    // Highlight
+                    sb.Draw(px, new Rectangle(dx - 3, dy - 2, 2, 2), new Color(255, 150, 150));
+                }
+                else if (Drop == DropType.Ammo)
+                {
+                    // Arrow/diamond shape
+                    sb.Draw(px, new Rectangle(dx - 1, dy - 6, 2, 12), Color.Cyan);
+                    sb.Draw(px, new Rectangle(dx - 3, dy - 4, 6, 2), Color.Cyan);
+                    sb.Draw(px, new Rectangle(dx - 2, dy - 5, 4, 2), new Color(180, 255, 255));
+                }
+                else if (Drop == DropType.Key)
+                {
+                    // Key shape
+                    sb.Draw(px, new Rectangle(dx - 2, dy - 4, 4, 4), Color.Gold);
+                    sb.Draw(px, new Rectangle(dx, dy, 2, 6), Color.Gold);
+                    sb.Draw(px, new Rectangle(dx, dy + 4, 4, 2), Color.Gold);
+                    sb.Draw(px, new Rectangle(dx - 1, dy - 3, 2, 2), Color.Yellow);
+                }
+                else
+                {
+                    int size = (int)(10 * pulse);
+                    sb.Draw(px, new Rectangle(dx - size / 2, dy - size / 2, size, size), dropColor);
+                }
             }
         }
     }

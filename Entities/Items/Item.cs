@@ -5,6 +5,9 @@
 //              Used by the Inventory to create concrete item instances.
 // ============================================================================
 
+using System;
+using TheGame.Entities;
+
 namespace TheGame.Entities.Items
 {
     /// <summary>
@@ -15,25 +18,38 @@ namespace TheGame.Entities.Items
         Melee,              // sword swing — hitbox in front of player
         Projectile,         // arrow / fireball — flies forward, dies on hit or max range
         ProjectileReturn,   // boomerang — flies out, then returns to player
-        AOE                 // bomb — placed, detonates after fuse time
+        AOE,                 // bomb — placed, detonates after fuse time
+        Key                 // Just a key
+    }
+
+    /// <summary>
+    /// The category of item.
+    /// </summary>
+    public enum ItemType
+    {
+        Weapon,
+        Consumable,
+        KeyItem
     }
 
     /// <summary>
     /// Pure data — one entry from items.json.
     /// </summary>
-    public class ItemData
+    public class Item
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public int SpriteIndex { get; set; }
+        public string Description { get; set; }
         public string SpritePath { get; set; }
-        public int AmmoCount { get; set; }     // -1 = unlimited
-        public EffectType Effect { get; set; }
+        public ItemType Type { get; set; }
+        public EffectType EffectType { get; set; }
+        public System.Action<Player> Effect { get; set; }
+        
+        // Item properties from JSON
         public int Damage { get; set; }
         public float Range { get; set; }
         public float Cooldown { get; set; }
-        public float Speed { get; set; }       // for projectiles
-        public float FuseTime { get; set; }    // for bombs
-        public string Description { get; set; }
+        public float Speed { get; set; }
+        public float FuseTime { get; set; }
     }
 }

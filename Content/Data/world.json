@@ -1,0 +1,140 @@
+{
+  "world_name": "The Fading Resonance",
+  "grid_width": 3,
+  "grid_height": 2,
+  "rooms": [
+    {
+      "id": "forest_west",
+      "grid_x": 0,
+      "grid_y": 0,
+      "theme": "Forest",
+      "description": "Deep forest where the Raccoon Guardian dwells.",
+      "quest_flag": "raccoon_defeated",
+      "quest_condition": "Kill the Raccoon Guardian to clear this room.",
+      "floor_type": "grass",
+      "npcs": [],
+      "signs": [
+        { "x": 120, "y": 380, "text": "DANGER. THE GUARDIAN LURKS HERE. TURN BACK." }
+      ],
+      "chests": [],
+      "enemies": [
+        { "type": "raccoon", "x": 350, "y": 240 }
+      ],
+      "breakables": [
+        { "type": "crate", "x": 100, "y": 350, "drop": "ammo" },
+        { "type": "crate", "x": 650, "y": 200, "drop": "ammo" }
+      ]
+    },
+    {
+      "id": "starting_meadow",
+      "grid_x": 1,
+      "grid_y": 0,
+      "theme": "Forest",
+      "description": "The starting meadow. Old Man Elam waits here.",
+      "quest_flag": "spoke_to_elam",
+      "quest_condition": "Speak to Old Man Elam to receive your quest.",
+      "floor_type": "grass",
+      "npcs": [
+        { "id": "old_man_elam", "x": 480, "y": 120 }
+      ],
+      "signs": [
+        { "x": 560, "y": 400, "text": "SOUTH: QUIET VILLAGE. EAST: RUINED PATH." }
+      ],
+      "chests": [],
+      "enemies": [
+        { "type": "bamboo", "x": 200, "y": 150 },
+        { "type": "bamboo", "x": 600, "y": 350 }
+      ],
+      "breakables": [
+        { "type": "pot", "x": 100, "y": 100, "drop": "heart" },
+        { "type": "pot", "x": 680, "y": 100, "drop": "heart" }
+      ]
+    },
+    {
+      "id": "ruined_path",
+      "grid_x": 2,
+      "grid_y": 0,
+      "theme": "Ruined Path",
+      "description": "The eastern ruins. Sound-Crystals hum faintly.",
+      "quest_flag": "cleared_ruins",
+      "quest_condition": "Defeat all Bamboos to clear the path.",
+      "floor_type": "grass",
+      "npcs": [],
+      "signs": [
+        { "x": 300, "y": 400, "text": "THE ECHO WAS LAST SEEN HERE. STRIKE THE CRYSTALS." }
+      ],
+      "chests": [],
+      "enemies": [
+        { "type": "bamboo", "x": 150, "y": 200 },
+        { "type": "bamboo", "x": 350, "y": 250 },
+        { "type": "bamboo", "x": 550, "y": 200 }
+      ],
+      "breakables": [
+        { "type": "grass", "x": 300, "y": 350, "drop": "none" },
+        { "type": "grass", "x": 500, "y": 350, "drop": "none" }
+      ]
+    },
+    {
+      "id": "dark_swamp",
+      "grid_x": 0,
+      "grid_y": 1,
+      "theme": "Quiet Village",
+      "description": "An abandoned village. The Stillness is thick here.",
+      "quest_flag": "none",
+      "quest_condition": null,
+      "floor_type": "sand",
+      "npcs": [
+        { "id": "mysterious_pot", "x": 400, "y": 250 }
+      ],
+      "signs": [
+        { "x": 200, "y": 100, "text": "THIS VILLAGE FELL TO THE STILLNESS LONG AGO. ONLY ECHOES REMAIN." }
+      ],
+      "chests": [],
+      "enemies": [],
+      "breakables": [
+        { "type": "pot", "x": 300, "y": 200, "drop": "heart" },
+        { "type": "pot", "x": 500, "y": 200, "drop": "none" }
+      ]
+    },
+    {
+      "id": "dungeon_gate",
+      "grid_x": 1,
+      "grid_y": 1,
+      "theme": "Quiet Village",
+      "description": "The gate to the North Dungeon. A Silent Guard stands watch.",
+      "quest_flag": "dungeon_unlocked",
+      "quest_condition": "Have the Boomerang to convince the Silent Guard.",
+      "floor_type": "sand",
+      "npcs": [
+        { "id": "silent_guard", "x": 370, "y": 180 }
+      ],
+      "signs": [],
+      "chests": [],
+      "enemies": [
+        { "type": "bamboo", "x": 250, "y": 150 },
+        { "type": "bamboo", "x": 550, "y": 300 }
+      ],
+      "breakables": [
+        { "type": "pot", "x": 300, "y": 100, "drop": "heart" },
+        { "type": "pot", "x": 500, "y": 100, "drop": "none" }
+      ]
+    },
+    {
+      "id": "deep_cave",
+      "grid_x": 2,
+      "grid_y": 1,
+      "theme": "Quiet Village",
+      "description": "A deep cave. Strange sounds echo from within.",
+      "quest_flag": "none",
+      "quest_condition": null,
+      "floor_type": "sand",
+      "npcs": [],
+      "signs": [
+        { "x": 400, "y": 380, "text": "THE RESONANCE GROWS STRONGER. THE TUNING FORK IS NEAR." }
+      ],
+      "chests": [],
+      "enemies": [],
+      "breakables": []
+    }
+  ]
+}

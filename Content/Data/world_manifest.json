@@ -1,0 +1,47 @@
+{
+  "ManifestName": "The Fading Resonance - 5x5 World",
+  "Width": 5,
+  "Height": 5,
+  "Rooms": [
+    {
+      "Location": { "X": 0, "Y": 0 },
+      "Biome": "The Whispering Woods",
+      "RoomMapFile": "room_0_0.json",
+      "Flags": {
+        "RequiresQuestTuned": true,
+        "SpawnEnemies": false
+      }
+    },
+    {
+      "Location": { "X": 1, "Y": 0 },
+      "Biome": "The Whispering Woods",
+      "RoomMapFile": "room_1_0.json",
+      "Flags": { "SpawnEnemies": true }
+    },
+    {
+      "Location": { "X": 2, "Y": 0 },
+      "Biome": "The Whispering Woods",
+      "RoomMapFile": "room_2_0.json",
+      "Flags": { "SpawnEnemies": true }
+    },
+    {
+      "Location": { "X": 3, "Y": 0 },
+      "Biome": "The Iron Silence",
+      "RoomMapFile": "room_3_0.json",
+      "Flags": { "SpawnEnemies": true }
+    },
+    {
+      "Location": { "X": 4, "Y": 0 },
+      "Biome": "The Iron Silence",
+      "RoomMapFile": "room_4_0.json",
+      "Flags": { "SpawnEnemies": true, "IsBossRoom": true, "BossId": "MechGeneral" }
+    },
+    {
+      "Location": { "X": 0, "Y": 4 },
+      "Biome": "The Echoing Peaks",
+      "RoomMapFile": "room_0_4.json",
+      "Flags": { "SpawnEnemies": true, "Weather": "Snowing" }
+    }
+  ],
+  "Notes": "Rest of the 25 rooms omitted in this mock for brevity, mapping X/Y from 0 to 4. WorldManager consumes this to load adjacent maps."
+}

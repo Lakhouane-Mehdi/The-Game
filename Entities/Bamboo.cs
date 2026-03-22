@@ -37,7 +37,8 @@ namespace TheGame.Entities
             Animations["move"] = LoadAnimFromFolder("Sprites/Monsters/bamboo/move");
             Animations["attack"] = LoadAnimFromFolder("Sprites/Monsters/bamboo/attack", 0.1f);
 
-            Sprite = Animations["idle"].CurrentFrame;
+            Sprite = Animations["idle"].CurrentTexture;
+            SpriteSourceRect = Animations["idle"].CurrentSourceRect;
             InitStateMachine();
         }
 

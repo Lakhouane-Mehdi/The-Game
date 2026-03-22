@@ -18,33 +18,41 @@ namespace TheGame.Entities.Items
 {
     public class Inventory
     {
-        // ── Owned items ──
-        private readonly List<ItemData> _items = new();
+        // ── Owned items (Item -> Quantity) ──
+        private readonly Dictionary<Item, int> _items = new();
+        
+        // ── List for stable UI ordering ──
+        private readonly List<Item> _itemList = new();
 
-        // ── Currently equipped item index ──
+        // ── Currently equipped item index in _itemList ──
         private int _equippedIndex = -1;
 
         /// <summary>
         /// The currently equipped item, or null if nothing is equipped.
         /// </summary>
-        public ItemData EquippedItem =>
-            _equippedIndex >= 0 && _equippedIndex < _items.Count
-                ? _items[_equippedIndex]
+        public Item EquippedItem =>
+            _equippedIndex >= 0 && _equippedIndex < _itemList.Count
+                ? _itemList[_equippedIndex]
                 : null;
+
+        public int EquippedIndex => _equippedIndex;
+
+        public void SetEquippedIndex(int index)
+        {
+            if (index >= 0 && index < _itemList.Count)
+                _equippedIndex = index;
+        }
 
         /// <summary>
         /// All items in the inventory (read-only view).
         /// </summary>
-        public IReadOnlyList<ItemData> Items => _items;
+        public IReadOnlyList<Item> Items => _itemList;
 
         // ── Item sprites (loaded per item) ──
         private readonly Dictionary<string, Texture2D> _itemSprites = new();
 
-        // ── Ammo tracking (keyed by item ID) ──
-        private readonly Dictionary<string, int> _ammo = new();
-
         // ── Master item catalog (loaded from JSON) ──
-        private static readonly Dictionary<string, ItemData> _catalog = new();
+        private static readonly Dictionary<string, Item> _catalog = new();
 
         // ──────────────────────────────────────────────
         //  Loading from JSON
@@ -65,14 +73,14 @@ namespace TheGame.Entities.Items
 
             foreach (JsonElement elem in itemsArray.EnumerateArray())
             {
-                var data = new ItemData
+                var itemTypeStr = elem.TryGetProperty("type", out var t) ? t.GetString() : "Weapon";
+                var item = new Item
                 {
                     Id = elem.GetProperty("id").GetString(),
                     Name = elem.GetProperty("name").GetString(),
-                    SpriteIndex = elem.GetProperty("spriteIndex").GetInt32(),
                     SpritePath = elem.GetProperty("spritePath").GetString(),
-                    AmmoCount = elem.GetProperty("ammoCount").GetInt32(),
-                    Effect = ParseEffect(elem.GetProperty("effectType").GetString()),
+                    Type = ParseItemType(itemTypeStr),
+                    EffectType = ParseEffect(elem.GetProperty("effectType").GetString()),
                     Damage = elem.GetProperty("damage").GetInt32(),
                     Range = elem.GetProperty("range").GetSingle(),
                     Cooldown = elem.GetProperty("cooldown").GetSingle(),
@@ -80,9 +88,17 @@ namespace TheGame.Entities.Items
                     FuseTime = elem.TryGetProperty("fuseTime", out var ft) ? ft.GetSingle() : 0f,
                     Description = elem.GetProperty("description").GetString(),
                 };
-                _catalog[data.Id] = data;
+                _catalog[item.Id] = item;
             }
         }
+
+        private static ItemType ParseItemType(string s) => s switch
+        {
+            "weapon" => ItemType.Weapon,
+            "consumable" => ItemType.Consumable,
+            "key" => ItemType.KeyItem,
+            _ => ItemType.Weapon
+        };
 
         private static EffectType ParseEffect(string s) => s switch
         {
@@ -90,6 +106,7 @@ namespace TheGame.Entities.Items
             "projectile" => EffectType.Projectile,
             "projectile_return" => EffectType.ProjectileReturn,
             "aoe" => EffectType.AOE,
+            "key" => EffectType.Key,
             _ => EffectType.Melee
         };
 
@@ -100,24 +117,35 @@ namespace TheGame.Entities.Items
         /// <summary>
         /// Grants the player an item by catalog ID.
         /// </summary>
-        public void AddItem(string itemId)
+        /// <summary>
+        /// Checks if the player has a specific item.
+        /// </summary>
+        public bool HasItem(string itemId)
+        {
+            foreach (var i in _itemList)
+                if (i.Id == itemId) return true;
+            return false;
+        }
+
+        public void AddItem(string itemId, int amount = 1)
         {
             if (!_catalog.ContainsKey(itemId)) return;
 
-            // Don't add duplicates
-            foreach (var i in _items)
-                if (i.Id == itemId) return;
+            var item = _catalog[itemId];
+            
+            if (_items.ContainsKey(item))
+            {
+                _items[item] += amount;
+            }
+            else
+            {
+                _items[item] = amount;
+                _itemList.Add(item);
 
-            var data = _catalog[itemId];
-            _items.Add(data);
-
-            // Set initial ammo
-            if (data.AmmoCount > 0)
-                _ammo[data.Id] = data.AmmoCount;
-
-            // Load sprite
-            if (AssetLoader.Exists(data.SpritePath))
-                _itemSprites[data.Id] = AssetLoader.LoadTexture(data.SpritePath);
+                // Load sprite
+                if (AssetLoader.Exists(item.SpritePath))
+                    _itemSprites[item.Id] = AssetLoader.LoadTexture(item.SpritePath);
+            }
 
             // Auto-equip if it's the first item
             if (_equippedIndex < 0)
@@ -129,8 +157,8 @@ namespace TheGame.Entities.Items
         /// </summary>
         public void CycleNext()
         {
-            if (_items.Count == 0) return;
-            _equippedIndex = (_equippedIndex + 1) % _items.Count;
+            if (_itemList.Count == 0) return;
+            _equippedIndex = (_equippedIndex + 1) % _itemList.Count;
         }
 
         /// <summary>
@@ -138,9 +166,9 @@ namespace TheGame.Entities.Items
         /// </summary>
         public void CyclePrev()
         {
-            if (_items.Count == 0) return;
+            if (_itemList.Count == 0) return;
             _equippedIndex--;
-            if (_equippedIndex < 0) _equippedIndex = _items.Count - 1;
+            if (_equippedIndex < 0) _equippedIndex = _itemList.Count - 1;
         }
 
         // ──────────────────────────────────────────────
@@ -148,32 +176,37 @@ namespace TheGame.Entities.Items
         // ──────────────────────────────────────────────
 
         /// <summary>
-        /// Returns remaining ammo for an item. -1 = unlimited.
+        /// Returns quantity of an item.
         /// </summary>
-        public int GetAmmo(string itemId)
+        public int GetQuantity(Item item)
         {
-            if (_ammo.ContainsKey(itemId)) return _ammo[itemId];
-            return -1; // unlimited
+            if (item != null && _items.ContainsKey(item)) return _items[item];
+            return 0;
+        }
+
+        public int GetQuantityById(string itemId)
+        {
+            if (_catalog.ContainsKey(itemId))
+                return GetQuantity(_catalog[itemId]);
+            return 0;
         }
 
         /// <summary>
-        /// Consumes 1 ammo. Returns false if out of ammo.
+        /// Consumes 1 unit. Returns false if out.
+        /// Melee and Key items are never consumed.
         /// </summary>
-        public bool ConsumeAmmo(string itemId)
+        public bool ConsumeItem(Item item)
         {
-            if (!_ammo.ContainsKey(itemId)) return true; // unlimited
-            if (_ammo[itemId] <= 0) return false;
-            _ammo[itemId]--;
+            if (item == null || !_items.ContainsKey(item)) return false;
+
+            // Melee weapons and key items are unlimited — never consume
+            if (item.EffectType == EffectType.Melee || item.EffectType == EffectType.Key)
+                return true;
+
+            if (_items[item] <= 0) return false;
+
+            _items[item]--;
             return true;
-        }
-
-        /// <summary>
-        /// Adds ammo to an item (e.g. picked up arrow bundle).
-        /// </summary>
-        public void AddAmmo(string itemId, int amount)
-        {
-            if (_ammo.ContainsKey(itemId))
-                _ammo[itemId] += amount;
         }
 
         // ──────────────────────────────────────────────
@@ -188,7 +221,10 @@ namespace TheGame.Entities.Items
         {
             var item = EquippedItem;
             if (item == null) return false;
-            if (item.AmmoCount > 0 && GetAmmo(item.Id) <= 0) return false;
+            // Melee and key items are always usable
+            if (item.EffectType == EffectType.Melee || item.EffectType == EffectType.Key)
+                return true;
+            if (GetQuantity(item) <= 0) return false;
             return true;
         }
 
@@ -219,15 +255,14 @@ namespace TheGame.Entities.Items
                 sb.Draw(tex, new Rectangle(x + 4, y + 4, slotSize - 8, slotSize - 8), Color.White);
             }
 
-            // Ammo indicator (small bar below the slot)
-            if (item != null && item.AmmoCount > 0)
+            // Ammo indicator
+            if (item != null)
             {
-                int ammo = GetAmmo(item.Id);
-                int maxAmmo = item.AmmoCount;
-                float ratio = (float)ammo / maxAmmo;
-                int barW = (int)(slotSize * ratio);
-                sb.Draw(pixel, new Rectangle(x, y + slotSize + 2, barW, 4), Color.Cyan);
-                sb.Draw(pixel, new Rectangle(x + barW, y + slotSize + 2, slotSize - barW, 4), Color.DarkSlateGray);
+                int quantity = GetQuantity(item);
+                if (quantity > 1)
+                {
+                    PixelFont.DrawString(sb, quantity.ToString(), x + slotSize - 12, y + slotSize - 15, Color.White, 1);
+                }
             }
 
             // "X" key hint
@@ -235,8 +270,20 @@ namespace TheGame.Entities.Items
         }
 
         /// <summary>
-        /// Get the sprite for an item (for projectile rendering).
+        /// Exports the current inventory to Content/Data/inventory.json.
         /// </summary>
+        public void SaveItems(string contentRoot)
+        {
+            var saveData = new List<object>();
+            foreach (var kv in _items)
+            {
+                saveData.Add(new { id = kv.Key.Id, count = kv.Value });
+            }
+
+            string json = JsonSerializer.Serialize(saveData, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(Path.Combine(contentRoot, "Data", "inventory.json"), json);
+        }
+
         public Texture2D GetSprite(string itemId)
         {
             return _itemSprites.ContainsKey(itemId) ? _itemSprites[itemId] : null;

@@ -44,8 +44,8 @@ namespace TheGame.States
             _player.Inventory.AddItem("sword");
             _player.Inventory.AddItem("boomerang");
 
-            if (AssetLoader.Exists("Tiles/Floor.png"))
-                _floorTile = AssetLoader.LoadTexture("Tiles/Floor.png");
+            if (AssetLoader.Exists("Tiles/stone_floor.png"))
+                _floorTile = AssetLoader.LoadTexture("Tiles/stone_floor.png");
 
             // Enemies
             var b1 = new Bamboo(new Vector2(300, 150));
@@ -83,15 +83,17 @@ namespace TheGame.States
 
         public override void Update(GameTime gameTime)
         {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             _player.Update(gameTime);
-            CollisionSystem.MoveAndResolve(_player, _walls, 0);
+            CollisionSystem.MoveAndResolve(_player, _walls, dt);
             CollisionSystem.ClampToScreen(_player, Game1.ScreenWidth, Game1.ScreenHeight);
 
             for (int i = _enemies.Count - 1; i >= 0; i--)
             {
                 _enemies[i].TargetPosition = _player.Position;
                 _enemies[i].Update(gameTime);
-                CollisionSystem.MoveAndResolve(_enemies[i], _walls, 0);
+                CollisionSystem.MoveAndResolve(_enemies[i], _walls, dt);
 
                 if (_enemies[i].CanRemove)
                 {

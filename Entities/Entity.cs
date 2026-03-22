@@ -6,6 +6,7 @@
 //              Both the Player and all Enemies inherit from this.
 // ============================================================================
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TheGame.Core;
@@ -35,8 +36,21 @@ namespace TheGame.Entities
 
         // ── Rendering ──
         public Texture2D Sprite { get; set; }
+        public List<Texture2D> ExtraLayerSprites { get; set; } = new List<Texture2D>();
+        public Rectangle? SpriteSourceRect { get; set; } = null;
         public Color Tint { get; set; } = Color.White;
         public FacingDirection Facing { get; set; } = FacingDirection.Down;
+
+        /// <summary>
+        /// Scale factor for drawing. Use this to resize sprites that are
+        /// too large or too small for the game world (e.g. raccoon = 240px).
+        /// </summary>
+        public float DrawScale { get; protected set; } = 1f;
+
+        /// <summary>
+        /// Whether to draw a shadow ellipse under this entity.
+        /// </summary>
+        public bool DrawShadow { get; protected set; } = true;
 
         // ── Collision ──
         public int HitboxWidth { get; protected set; } = 32;
@@ -90,12 +104,50 @@ namespace TheGame.Entities
         {
             if (Sprite != null && IsAlive)
             {
+                // Draw shadow
+                if (DrawShadow)
+                {
+                    int shadowW = (int)(HitboxWidth * 1.2f);
+                    int shadowH = (int)(HitboxWidth * 0.4f);
+                    int sx = (int)(Position.X + HitboxOffset.X + HitboxWidth / 2 - shadowW / 2);
+                    int sy = (int)(Position.Y + HitboxOffset.Y + HitboxHeight - shadowH / 2);
+                    spriteBatch.Draw(Game1.PixelTexture,
+                        new Rectangle(sx, sy, shadowW, shadowH),
+                        Color.Black * 0.25f);
+                }
+
                 // Blink during invincibility
                 Color drawColor = Tint;
                 if (IsInvincible && ((int)(InvincibilityTimer * 10) % 2 == 0))
                     drawColor = Color.Transparent;
 
-                spriteBatch.Draw(Sprite, Position, drawColor);
+                if (DrawScale != 1f)
+                {
+                    int w = SpriteSourceRect?.Width ?? Sprite.Width;
+                    int h = SpriteSourceRect?.Height ?? Sprite.Height;
+                    int dw = (int)(w * DrawScale);
+                    int dh = (int)(h * DrawScale);
+                    SpriteEffects fx = Facing == FacingDirection.Left ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+                    Rectangle dest = new Rectangle((int)Position.X, (int)Position.Y, dw, dh);
+                    
+                    spriteBatch.Draw(Sprite, dest, SpriteSourceRect, drawColor, 0f, Vector2.Zero, fx, 0f);
+                    if (ExtraLayerSprites != null)
+                    {
+                        foreach (var layer in ExtraLayerSprites)
+                            if (layer != null) spriteBatch.Draw(layer, dest, SpriteSourceRect, drawColor, 0f, Vector2.Zero, fx, 0f);
+                    }
+                }
+                else
+                {
+                    SpriteEffects fx = Facing == FacingDirection.Left ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+                    Vector2 intPos = new Vector2((int)Position.X, (int)Position.Y);
+                    spriteBatch.Draw(Sprite, intPos, SpriteSourceRect, drawColor, 0f, Vector2.Zero, 1f, fx, 0f);
+                    if (ExtraLayerSprites != null)
+                    {
+                        foreach (var layer in ExtraLayerSprites)
+                            if (layer != null) spriteBatch.Draw(layer, intPos, SpriteSourceRect, drawColor, 0f, Vector2.Zero, 1f, fx, 0f);
+                    }
+                }
             }
         }
 

@@ -40,6 +40,20 @@ namespace TheGame.Utils
             string fullPath = Path.Combine(_contentRoot, relativePath);
             using FileStream stream = new FileStream(fullPath, FileMode.Open);
             Texture2D texture = Texture2D.FromStream(_device, stream);
+            
+            // Pre-multiply alpha for proper BlendState.AlphaBlend rendering
+            Color[] data = new Color[texture.Width * texture.Height];
+            texture.GetData(data);
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = new Color(
+                    (byte)(data[i].R * data[i].A / 255),
+                    (byte)(data[i].G * data[i].A / 255),
+                    (byte)(data[i].B * data[i].A / 255),
+                    data[i].A);
+            }
+            texture.SetData(data);
+            
             return texture;
         }
 

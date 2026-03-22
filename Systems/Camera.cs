@@ -18,6 +18,7 @@
 //   paused (the player and enemies freeze).
 // ============================================================================
 
+using System;
 using Microsoft.Xna.Framework;
 
 namespace TheGame.Systems
@@ -35,6 +36,13 @@ namespace TheGame.Systems
         // ── Previous room (for detecting room changes) ──
         public int PrevRoomX { get; private set; }
         public int PrevRoomY { get; private set; }
+
+        // ── Screen Shake ──
+        private float _shakeIntensity;
+        private float _shakeDuration;
+        private float _shakeTimer;
+        private Vector2 _shakeOffset;
+        private Random _shakeRng = new Random();
 
         /// <summary>
         /// True when the camera changed rooms on the last CheckTransition call.
@@ -81,7 +89,8 @@ namespace TheGame.Systems
         /// appears at (0,0) on screen.
         /// </summary>
         public Matrix TransformMatrix => Matrix.CreateTranslation(
-            -(int)Position.X, -(int)Position.Y, 0f);
+            -(int)Position.X + (int)_shakeOffset.X,
+            -(int)Position.Y + (int)_shakeOffset.Y, 0f);
 
         // ──────────────────────────────────────────────
         //  Transition Check — call every frame
@@ -112,30 +121,38 @@ namespace TheGame.Systems
             float roomTop = RoomY * RoomHeight;
             float roomBottom = roomTop + RoomHeight;
 
+            // Extract the offset between the graphic position and the actual hitbox
+            float offsetX = playerHitbox.Left - playerPos.X;
+            float offsetY = playerHitbox.Top - playerPos.Y;
+
             // ── Check each edge ──
             if (playerHitbox.Right >= roomRight && RoomX < WorldRoomsX - 1)
             {
                 // Exiting right
                 newRoomX = RoomX + 1;
-                adjustedPos.X = newRoomX * RoomWidth + PlayerInset;
+                float newRoomLeft = newRoomX * RoomWidth;
+                adjustedPos.X = newRoomLeft + PlayerInset - offsetX;
             }
             else if (playerHitbox.Left <= roomLeft && RoomX > 0)
             {
                 // Exiting left
                 newRoomX = RoomX - 1;
-                adjustedPos.X = (newRoomX + 1) * RoomWidth - playerHitbox.Width - PlayerInset;
+                float newRoomRight = (newRoomX + 1) * RoomWidth;
+                adjustedPos.X = newRoomRight - PlayerInset - playerHitbox.Width - offsetX;
             }
             else if (playerHitbox.Bottom >= roomBottom && RoomY < WorldRoomsY - 1)
             {
                 // Exiting bottom
                 newRoomY = RoomY + 1;
-                adjustedPos.Y = newRoomY * RoomHeight + PlayerInset;
+                float newRoomTop = newRoomY * RoomHeight;
+                adjustedPos.Y = newRoomTop + PlayerInset - offsetY;
             }
             else if (playerHitbox.Top <= roomTop && RoomY > 0)
             {
                 // Exiting top
                 newRoomY = RoomY - 1;
-                adjustedPos.Y = (newRoomY + 1) * RoomHeight - playerHitbox.Height - PlayerInset;
+                float newRoomBottom = (newRoomY + 1) * RoomHeight;
+                adjustedPos.Y = newRoomBottom - PlayerInset - playerHitbox.Height - offsetY;
             }
 
             // Did we actually change rooms?
@@ -216,6 +233,55 @@ namespace TheGame.Systems
             RoomX = rx;
             RoomY = ry;
             Position = new Vector2(rx * RoomWidth, ry * RoomHeight);
+        }
+
+        // ──────────────────────────────────────────────
+        //  Screen Shake
+        // ──────────────────────────────────────────────
+
+        /// <summary>
+        /// Triggers a screen shake effect. Call on enemy death, boss hits, etc.
+        /// </summary>
+        /// <param name="intensity">Max pixel displacement (3-6 for hits, 8-12 for boss).</param>
+        /// <param name="duration">Shake duration in seconds (0.15-0.3 typical).</param>
+        public void Shake(float intensity = 4f, float duration = 0.2f)
+        {
+            // Allow stacking: only override if new shake is stronger
+            if (intensity >= _shakeIntensity)
+            {
+                _shakeIntensity = intensity;
+                _shakeDuration = duration;
+                _shakeTimer = 0f;
+            }
+        }
+
+        /// <summary>
+        /// Ticks the shake timer. Called from the main Update.
+        /// </summary>
+        public void UpdateShake(float dt)
+        {
+            if (_shakeIntensity <= 0f)
+            {
+                _shakeOffset = Vector2.Zero;
+                return;
+            }
+
+            _shakeTimer += dt;
+            if (_shakeTimer >= _shakeDuration)
+            {
+                _shakeIntensity = 0f;
+                _shakeOffset = Vector2.Zero;
+                return;
+            }
+
+            // Decay intensity over time for a natural feel
+            float decay = 1f - (_shakeTimer / _shakeDuration);
+            float currentIntensity = _shakeIntensity * decay;
+
+            // Random offset each frame
+            _shakeOffset = new Vector2(
+                (_shakeRng.NextSingle() * 2f - 1f) * currentIntensity,
+                (_shakeRng.NextSingle() * 2f - 1f) * currentIntensity);
         }
     }
 }

@@ -1,0 +1,1244 @@
+﻿{
+    "assets":  [
+                   {
+                       "url":  "Audio/Music/main.ogg",
+                       "key":  "main",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/Music/theme_dream.ogg",
+                       "key":  "theme_dream",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/Music/theme_lost_village.ogg",
+                       "key":  "theme_lost_village",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/Music/theme_plain.ogg",
+                       "key":  "theme_plain",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/Music/theme_swamp.ogg",
+                       "key":  "theme_swamp",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/claw.wav",
+                       "key":  "claw",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/death.wav",
+                       "key":  "SFX_death",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/Fire.wav",
+                       "key":  "Fire",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/fireball.wav",
+                       "key":  "fireball",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/heal.wav",
+                       "key":  "heal",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/hit.wav",
+                       "key":  "hit",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/slash.wav",
+                       "key":  "slash",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Audio/SFX/sword.wav",
+                       "key":  "sword",
+                       "type":  "audio"
+                   },
+                   {
+                       "url":  "Data/blacksmith_house.json",
+                       "key":  "blacksmith_house",
+                       "type":  "json"
+                   },
+                   {
+                       "url":  "Data/dialogues.json",
+                       "key":  "dialogues",
+                       "type":  "json"
+                   },
+                   {
+                       "url":  "Data/items.json",
+                       "key":  "items",
+                       "type":  "json"
+                   },
+                   {
+                       "url":  "Data/world.json",
+                       "key":  "world",
+                       "type":  "json"
+                   },
+                   {
+                       "url":  "Objects/0.png",
+                       "key":  "Objects_0",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/01.png",
+                       "key":  "Objects_01",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/02.png",
+                       "key":  "Objects_02",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/03.png",
+                       "key":  "Objects_03",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/04.png",
+                       "key":  "Objects_04",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/05.png",
+                       "key":  "Objects_05",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/06.png",
+                       "key":  "Objects_06",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/07.png",
+                       "key":  "Objects_07",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/08.png",
+                       "key":  "Objects_08",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/09.png",
+                       "key":  "Objects_09",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/10.png",
+                       "key":  "Objects_10",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/11.png",
+                       "key":  "Objects_11",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/12.png",
+                       "key":  "Objects_12",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/13.png",
+                       "key":  "Objects_13",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/14.png",
+                       "key":  "Objects_14",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/15.png",
+                       "key":  "Objects_15",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/16.png",
+                       "key":  "Objects_16",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/17.png",
+                       "key":  "Objects_17",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/18.png",
+                       "key":  "Objects_18",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/19.png",
+                       "key":  "Objects_19",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/20.png",
+                       "key":  "Objects_20",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/blacksmith_building.png",
+                       "key":  "blacksmith_building",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/blacksmith_house_roof.png",
+                       "key":  "blacksmith_house_roof",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/crate.png",
+                       "key":  "crate",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/grass.png",
+                       "key":  "grass",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/grass_1.png",
+                       "key":  "grass_1",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/grass_2.png",
+                       "key":  "grass_2",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/grass_3.png",
+                       "key":  "grass_3",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/house_assembled_1.png",
+                       "key":  "house_assembled_1",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/house_assembled_2.png",
+                       "key":  "house_assembled_2",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/house_brick.png",
+                       "key":  "house_brick",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/house_brown.png",
+                       "key":  "house_brown",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/house_small.png",
+                       "key":  "house_small",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/house_stone.png",
+                       "key":  "house_stone",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/house_wood.png",
+                       "key":  "house_wood",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/pot.png",
+                       "key":  "pot",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/work station.png",
+                       "key":  "work station",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/Nature/Boats.png",
+                       "key":  "Boats",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/Nature/Mushrooms, Flowers, Stones.png",
+                       "key":  "Mushrooms, Flowers, Stones",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/Nature/signs.png",
+                       "key":  "signs",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/Nature/Trees, stumps and bushes.png",
+                       "key":  "Trees, stumps and bushes",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Objects/Nature/Water well.png",
+                       "key":  "Water well",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/attack/0.png",
+                       "key":  "attack_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/idle/0.png",
+                       "key":  "idle_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/idle/1.png",
+                       "key":  "idle_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/idle/2.png",
+                       "key":  "idle_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/idle/3.png",
+                       "key":  "idle_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/move/0.png",
+                       "key":  "move_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/move/1.png",
+                       "key":  "move_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/move/2.png",
+                       "key":  "move_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/bamboo/move/3.png",
+                       "key":  "move_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/attack/0.png",
+                       "key":  "attack_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/attack/1.png",
+                       "key":  "attack_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/attack/2.png",
+                       "key":  "attack_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/attack/3.png",
+                       "key":  "attack_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/idle/0.png",
+                       "key":  "idle_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/idle/1.png",
+                       "key":  "idle_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/idle/2.png",
+                       "key":  "idle_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/idle/3.png",
+                       "key":  "idle_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/idle/4.png",
+                       "key":  "idle_4",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/idle/5.png",
+                       "key":  "idle_5",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/move/0.png",
+                       "key":  "move_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/move/1.png",
+                       "key":  "move_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/move/2.png",
+                       "key":  "move_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/move/3.png",
+                       "key":  "move_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/raccoon/move/4.png",
+                       "key":  "move_4",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/attack/0.png",
+                       "key":  "attack_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/idle/0.png",
+                       "key":  "idle_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/idle/1.png",
+                       "key":  "idle_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/idle/2.png",
+                       "key":  "idle_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/idle/3.png",
+                       "key":  "idle_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/move/0.png",
+                       "key":  "move_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/move/1.png",
+                       "key":  "move_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/move/2.png",
+                       "key":  "move_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/spirit/move/3.png",
+                       "key":  "move_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/attack/0 - Copy (2).png",
+                       "key":  "0 - Copy (2)",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/attack/0 - Copy (3).png",
+                       "key":  "0 - Copy (3)",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/attack/0 - Copy.png",
+                       "key":  "0 - Copy",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/attack/0.png",
+                       "key":  "attack_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/idle/0.png",
+                       "key":  "idle_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/idle/1.png",
+                       "key":  "idle_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/idle/2.png",
+                       "key":  "idle_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/idle/3.png",
+                       "key":  "idle_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/idle/4.png",
+                       "key":  "idle_4",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/move/0.png",
+                       "key":  "move_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/move/1.png",
+                       "key":  "move_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/move/2.png",
+                       "key":  "move_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Monsters/squid/move/3.png",
+                       "key":  "move_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/attack_down.png",
+                       "key":  "attack_down",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/attack_left.png",
+                       "key":  "attack_left",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/attack_right.png",
+                       "key":  "attack_right",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/attack_up.png",
+                       "key":  "attack_up",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/down_0.png",
+                       "key":  "down_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/down_1.png",
+                       "key":  "down_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/down_2.png",
+                       "key":  "down_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/down_3.png",
+                       "key":  "down_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/idle_down.png",
+                       "key":  "idle_down",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/idle_left.png",
+                       "key":  "idle_left",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/idle_right.png",
+                       "key":  "idle_right",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/idle_up.png",
+                       "key":  "idle_up",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/left_0.png",
+                       "key":  "left_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/left_1.png",
+                       "key":  "left_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/left_2.png",
+                       "key":  "left_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/left_3.png",
+                       "key":  "left_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/right_0.png",
+                       "key":  "right_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/right_1.png",
+                       "key":  "right_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/right_2.png",
+                       "key":  "right_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/right_3.png",
+                       "key":  "right_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/up_0.png",
+                       "key":  "up_0",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/up_1.png",
+                       "key":  "up_1",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/up_2.png",
+                       "key":  "up_2",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/up_3.png",
+                       "key":  "up_3",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Attack.png",
+                       "key":  "Player_Base_Attack",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Axe.png",
+                       "key":  "Player_Base_Axe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Bow.png",
+                       "key":  "Player_Base_Bow",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Climb.png",
+                       "key":  "Player_Base_Climb",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Death.png",
+                       "key":  "Player_Base_Death",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Fishing.png",
+                       "key":  "Player_Base_Fishing",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Hoe.png",
+                       "key":  "Player_Base_Hoe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Horse.png",
+                       "key":  "Player_Base_Horse",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Idle.png",
+                       "key":  "Player_Base_Idle",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Jump.png",
+                       "key":  "Player_Base_Jump",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Pickaxe.png",
+                       "key":  "Player_Base_Pickaxe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Push.png",
+                       "key":  "Player_Base_Push",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Roll.png",
+                       "key":  "Player_Base_Roll",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_Running.png",
+                       "key":  "Player_Base_Running",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Player_Base_WateringCan.png",
+                       "key":  "Player_Base_WateringCan",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Attack.png",
+                       "key":  "Pants_Blue_Attack",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Axe.png",
+                       "key":  "Pants_Blue_Axe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Bow.png",
+                       "key":  "Pants_Blue_Bow",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Climb.png",
+                       "key":  "Pants_Blue_Climb",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Death.png",
+                       "key":  "Pants_Blue_Death",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Fishing.png",
+                       "key":  "Pants_Blue_Fishing",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Hoe.png",
+                       "key":  "Pants_Blue_Hoe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Horse.png",
+                       "key":  "Pants_Blue_Horse",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Idle.png",
+                       "key":  "Pants_Blue_Idle",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Jump.png",
+                       "key":  "Pants_Blue_Jump",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Pickaxe.png",
+                       "key":  "Pants_Blue_Pickaxe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Push.png",
+                       "key":  "Pants_Blue_Push",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Roll.png",
+                       "key":  "Pants_Blue_Roll",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_Running.png",
+                       "key":  "Pants_Blue_Running",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Pants_Blue/Pants_Blue_WateringCan.png",
+                       "key":  "Pants_Blue_WateringCan",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Attack.png",
+                       "key":  "Shirt_Green_Attack",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Axe.png",
+                       "key":  "Shirt_Green_Axe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Bow.png",
+                       "key":  "Shirt_Green_Bow",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Climb.png",
+                       "key":  "Shirt_Green_Climb",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Death.png",
+                       "key":  "Shirt_Green_Death",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Fishing.png",
+                       "key":  "Shirt_Green_Fishing",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Hoe.png",
+                       "key":  "Shirt_Green_Hoe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Horse.png",
+                       "key":  "Shirt_Green_Horse",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Idle.png",
+                       "key":  "Shirt_Green_Idle",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Jump.png",
+                       "key":  "Shirt_Green_Jump",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Pickaxe.png",
+                       "key":  "Shirt_Green_Pickaxe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Push.png",
+                       "key":  "Shirt_Green_Push",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Roll.png",
+                       "key":  "Shirt_Green_Roll",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_Running.png",
+                       "key":  "Shirt_Green_Running",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shirt_Green/Shirt_Green_WateringCan.png",
+                       "key":  "Shirt_Green_WateringCan",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Attack.png",
+                       "key":  "Shoes_Brown_Attack",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Axe.png",
+                       "key":  "Shoes_Brown_Axe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Bow.png",
+                       "key":  "Shoes_Brown_Bow",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Climb.png",
+                       "key":  "Shoes_Brown_Climb",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Death.png",
+                       "key":  "Shoes_Brown_Death",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Fishing.png",
+                       "key":  "Shoes_Brown_Fishing",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Hoe.png",
+                       "key":  "Shoes_Brown_Hoe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Horse.png",
+                       "key":  "Shoes_Brown_Horse",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Idle.png",
+                       "key":  "Shoes_Brown_Idle",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Jump.png",
+                       "key":  "Shoes_Brown_Jump",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Pickaxe.png",
+                       "key":  "Shoes_Brown_Pickaxe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Push.png",
+                       "key":  "Shoes_Brown_Push",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Roll.png",
+                       "key":  "Shoes_Brown_Roll",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_Running.png",
+                       "key":  "Shoes_Brown_Running",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Clothes/Shoes_Brown/Shoes_Brown_WateringCan.png",
+                       "key":  "Shoes_Brown_WateringCan",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Attack.png",
+                       "key":  "Medium_Hair_Brown_Attack",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Axe.png",
+                       "key":  "Medium_Hair_Brown_Axe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Bow.png",
+                       "key":  "Medium_Hair_Brown_Bow",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Climb.png",
+                       "key":  "Medium_Hair_Brown_Climb",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Death.png",
+                       "key":  "Medium_Hair_Brown_Death",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Fishing.png",
+                       "key":  "Medium_Hair_Brown_Fishing",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Hoe.png",
+                       "key":  "Medium_Hair_Brown_Hoe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Horse.png",
+                       "key":  "Medium_Hair_Brown_Horse",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Idle.png",
+                       "key":  "Medium_Hair_Brown_Idle",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Jump.png",
+                       "key":  "Medium_Hair_Brown_Jump",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Pickaxe.png",
+                       "key":  "Medium_Hair_Brown_Pickaxe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Push.png",
+                       "key":  "Medium_Hair_Brown_Push",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Roll.png",
+                       "key":  "Medium_Hair_Brown_Roll",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_Running.png",
+                       "key":  "Medium_Hair_Brown_Running",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Player/CuteFantasy/Hair/Medium_Hair_Brown/Medium_Hair_Brown_WateringCan.png",
+                       "key":  "Medium_Hair_Brown_WateringCan",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Weapons/axe.png",
+                       "key":  "axe",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Weapons/big_sword.png",
+                       "key":  "big_sword",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Weapons/bone.png",
+                       "key":  "bone",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Weapons/book.png",
+                       "key":  "book",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Sprites/Weapons/club.png",
+                       "key":  "club",
+                       "type":  "spritesheet"
+                   },
+                   {
+                       "url":  "Tiles/Bush_Tiles.png",
+                       "key":  "Bush_Tiles",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Darker_Grass_Tiles_v2.png",
+                       "key":  "Darker_Grass_Tiles_v2",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/details.png",
+                       "key":  "details",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Floor.png",
+                       "key":  "Floor",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/free_pixel_16_woods.png",
+                       "key":  "free_pixel_16_woods",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/game_tileset.png",
+                       "key":  "game_tileset",
+                       "type":  "tileset"
+                   },
+                   {
+                       "url":  "Tiles/game_tileset_expanded.png",
+                       "key":  "game_tileset_expanded",
+                       "type":  "tileset"
+                   },
+                   {
+                       "url":  "Tiles/grass_floor.png",
+                       "key":  "grass_floor",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Grass_tiles_v2.png",
+                       "key":  "Grass_tiles_v2",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Grass_Tile_Layers.png",
+                       "key":  "Grass_Tile_Layers",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/ground.png",
+                       "key":  "ground",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/sand_floor.png",
+                       "key":  "sand_floor",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Soil_Ground_Tiles.png",
+                       "key":  "Soil_Ground_Tiles",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/stone_floor.png",
+                       "key":  "stone_floor",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Stone_Ground_Tiles.png",
+                       "key":  "Stone_Ground_Tiles",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/tileset_animated.png",
+                       "key":  "tileset_animated",
+                       "type":  "tileset"
+                   },
+                   {
+                       "url":  "Tiles/tileset_floor.png",
+                       "key":  "tileset_floor",
+                       "type":  "tileset"
+                   },
+                   {
+                       "url":  "Tiles/tileset_village_abandoned.png",
+                       "key":  "tileset_village_abandoned",
+                       "type":  "tileset"
+                   },
+                   {
+                       "url":  "Tiles/tileset_wall_simple.png",
+                       "key":  "tileset_wall_simple",
+                       "type":  "tileset"
+                   },
+                   {
+                       "url":  "Tiles/village_grid.png",
+                       "key":  "village_grid",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/wall_tile.png",
+                       "key":  "wall_tile",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/basic_furniture.png",
+                       "key":  "basic_furniture",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/chest.png",
+                       "key":  "chest",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/door_animation_sprites.png",
+                       "key":  "door_animation_sprites",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/fences.png",
+                       "key":  "fences",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/fence_gates_animation_sprites.png",
+                       "key":  "fence_gates_animation_sprites",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/mailbox_animation_frames.png",
+                       "key":  "mailbox_animation_frames",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/paths.png",
+                       "key":  "paths",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/stone_path.png",
+                       "key":  "stone_path",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/wooden_bridge.png",
+                       "key":  "wooden_bridge",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/wooden_bridge_v2.png",
+                       "key":  "wooden_bridge_v2",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/wooden_house_roof_tilset.png",
+                       "key":  "wooden_house_roof_tilset",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "Tiles/Buildings/wooden_house_walls_tilset.png",
+                       "key":  "wooden_house_walls_tilset",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "UI/heart.png",
+                       "key":  "heart",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "UI/heart_2.png",
+                       "key":  "heart_2",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "UI/heart_3.png",
+                       "key":  "heart_3",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "UI/heart_empty.png",
+                       "key":  "heart_empty",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "UI/heart_full.png",
+                       "key":  "heart_full",
+                       "type":  "image"
+                   },
+                   {
+                       "url":  "UI/heart_half.png",
+                       "key":  "heart_half",
+                       "type":  "image"
+                   }
+               ]
+}

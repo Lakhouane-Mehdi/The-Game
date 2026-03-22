@@ -139,7 +139,8 @@ namespace TheGame.Entities
             if (_currentAnimKey != null && Animations.ContainsKey(_currentAnimKey))
             {
                 Animations[_currentAnimKey].Update(dt);
-                Sprite = Animations[_currentAnimKey].CurrentFrame;
+                Sprite = Animations[_currentAnimKey].CurrentTexture;
+                SpriteSourceRect = Animations[_currentAnimKey].CurrentSourceRect;
             }
         }
 
@@ -153,7 +154,16 @@ namespace TheGame.Entities
                 if (SM.IsInState("dead") && SM.StateTimer < DeathFadeTime && Sprite != null)
                 {
                     float alpha = 1f - (SM.StateTimer / DeathFadeTime);
-                    spriteBatch.Draw(Sprite, Position, Color.White * alpha);
+                    if (DrawScale != 1f)
+                    {
+                        int dw = (int)(Sprite.Width * DrawScale);
+                        int dh = (int)(Sprite.Height * DrawScale);
+                        spriteBatch.Draw(Sprite,
+                            new Rectangle((int)Position.X, (int)Position.Y, dw, dh),
+                            Color.White * alpha);
+                    }
+                    else
+                        spriteBatch.Draw(Sprite, Position, Color.White * alpha);
                 }
                 return;
             }
