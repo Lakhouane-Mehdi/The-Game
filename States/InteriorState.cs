@@ -202,11 +202,58 @@ namespace TheGame.States
             // Wire projectile spawning
             _player.OnSpawnProjectile = (proj) => _projectiles.Add(proj);
 
-            // Add furniture collision walls
+            // Add furniture collision walls and interactable furniture
             AddFurnitureWalls();
+            AddFurnitureInteractables();
 
             // Prevent instant exit after entering
             _warpCooldown = 0.5f;
+        }
+
+        private void AddFurnitureInteractables()
+        {
+            if (_interiorId == "hero_house")
+            {
+                _interactables.Add(MakeInvisible(new Vector2(62, 70),
+                    "The fire crackles warmly. It feels like home."));
+                _interactables.Add(MakeInvisible(new Vector2(316, 190),
+                    "Dusty tomes line the shelves. Tales of ancient heroes and faraway lands."));
+                _interactables.Add(new TreasureChest(
+                    new Vector2(50, 240), "hero_house_chest", 15, "health_potion", "Health Potion"));
+                _interactables.Add(MakeInvisible(new Vector2(280, 80),
+                    "Your bed. Looks inviting after a long adventure."));
+                _interactables.Add(MakeInvisible(new Vector2(186, 52),
+                    "A little green friend. It seems to be thriving."));
+            }
+            else if (_interiorId == "blacksmith_house")
+            {
+                _interactables.Add(MakeInvisible(new Vector2(152, 130),
+                    "A well-used anvil. You can almost hear the ring of hammers."));
+                _interactables.Add(MakeInvisible(new Vector2(130, 70),
+                    "The forge burns hot. Perfect for shaping metal."));
+                _interactables.Add(MakeInvisible(new Vector2(270, 100),
+                    "Fine weapons on display. The blacksmith's best work."));
+                _interactables.Add(MakeInvisible(new Vector2(56, 210),
+                    "A barrel of supplies. Coal, iron ore, and a few scraps."));
+                _interactables.Add(new TreasureChest(
+                    new Vector2(260, 160), "blacksmith_chest", 25, "bomb", "Bombs x5"));
+            }
+
+            // Make light sources interactable too
+            foreach (var light in _lightSources)
+            {
+                _interactables.Add(MakeInvisible(light.Origin - new Vector2(14, 14),
+                    "A soft, warm glow emanates from here. It feels magical."));
+            }
+        }
+
+        /// <summary>
+        /// Creates an invisible interactable (no sign sprite drawn, just E prompt + dialogue).
+        /// </summary>
+        private static SignPost MakeInvisible(Vector2 pos, string text)
+        {
+            var sign = new SignPost(pos, text) { Visible = false };
+            return sign;
         }
 
         private void AddFurnitureWalls()
@@ -285,6 +332,14 @@ namespace TheGame.States
                         }
                     }
                 }
+            }
+
+            // ── Inventory (I key) ──
+            if (kb.IsKeyDown(Keys.I) && _prevKb.IsKeyUp(Keys.I))
+            {
+                GameRef.ChangeState(GameState.Inventory);
+                _prevKb = kb;
+                return;
             }
 
             // ── Player ──

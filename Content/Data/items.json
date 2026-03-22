@@ -3,9 +3,7 @@
     {
       "id": "sword",
       "name": "Sword",
-      "spriteIndex": 0,
       "spritePath": "Sprites/Weapons/big_sword.png",
-      "ammoCount": -1,
       "effectType": "melee",
       "damage": 1,
       "range": 36,
@@ -16,9 +14,7 @@
     {
       "id": "boomerang",
       "name": "Boomerang",
-      "spriteIndex": 1,
       "spritePath": "Sprites/Weapons/bone.png",
-      "ammoCount": 10,
       "effectType": "projectile_return",
       "damage": 1,
       "range": 150,
@@ -29,9 +25,7 @@
     {
       "id": "bow",
       "name": "Bow",
-      "spriteIndex": 2,
       "spritePath": "Sprites/Weapons/club.png",
-      "ammoCount": 15,
       "effectType": "projectile",
       "damage": 1,
       "range": 300,
@@ -42,9 +36,7 @@
     {
       "id": "bomb",
       "name": "Bomb",
-      "spriteIndex": 3,
       "spritePath": "Sprites/Weapons/book.png",
-      "ammoCount": 5,
       "effectType": "aoe",
       "damage": 3,
       "range": 60,
@@ -56,9 +48,7 @@
     {
       "id": "axe",
       "name": "Axe",
-      "spriteIndex": 4,
       "spritePath": "Sprites/Weapons/axe.png",
-      "ammoCount": -1,
       "effectType": "melee",
       "damage": 2,
       "range": 40,
@@ -69,15 +59,86 @@
     {
       "id": "iron_key",
       "name": "Iron Key",
-      "spriteIndex": 5,
-      "spritePath": "Sprites/Items/iron_key.png",
-      "ammoCount": -1,
+      "spritePath": "Objects/Nature/signs.png",
+      "type": "key",
       "effectType": "key",
       "damage": 0,
       "range": 0,
       "cooldown": 0,
       "speed": 0,
+      "srcX": 0, "srcY": 0, "srcW": 32, "srcH": 32,
       "description": "A heavy iron key. Opens a locked door somewhere."
+    },
+    {
+      "id": "fruit",
+      "name": "Wild Fruit",
+      "spritePath": "Objects/Nature/Trees, stumps and bushes.png",
+      "type": "resource",
+      "effectType": "resource",
+      "damage": 0,
+      "range": 0,
+      "cooldown": 0,
+      "srcX": 0, "srcY": 64, "srcW": 32, "srcH": 16,
+      "description": "A juicy wild fruit. Could be useful for crafting or trading."
+    },
+    {
+      "id": "stone",
+      "name": "Stone",
+      "spritePath": "Objects/Nature/Mushrooms, Flowers, Stones.png",
+      "type": "resource",
+      "effectType": "resource",
+      "damage": 0,
+      "range": 0,
+      "cooldown": 0,
+      "srcX": 96, "srcY": 16, "srcW": 32, "srcH": 32,
+      "description": "A sturdy stone. A basic building and crafting material."
+    },
+    {
+      "id": "flower",
+      "name": "Wildflower",
+      "spritePath": "Objects/Nature/Mushrooms, Flowers, Stones.png",
+      "type": "resource",
+      "effectType": "resource",
+      "damage": 0,
+      "range": 0,
+      "cooldown": 0,
+      "srcX": 48, "srcY": 48, "srcW": 32, "srcH": 32,
+      "description": "A colorful wildflower. Useful for potions and gifts."
+    },
+    {
+      "id": "mushroom",
+      "name": "Mushroom",
+      "spritePath": "Objects/Nature/Mushrooms, Flowers, Stones.png",
+      "type": "resource",
+      "effectType": "resource",
+      "damage": 0,
+      "range": 0,
+      "cooldown": 0,
+      "srcX": 16, "srcY": 0, "srcW": 16, "srcH": 16,
+      "description": "A forest mushroom. Can be used in cooking or potions."
+    },
+    {
+      "id": "wood",
+      "name": "Wood",
+      "spritePath": "Objects/Nature/Trees, stumps and bushes.png",
+      "type": "resource",
+      "effectType": "resource",
+      "damage": 0,
+      "range": 0,
+      "cooldown": 0,
+      "srcX": 0, "srcY": 96, "srcW": 32, "srcH": 16,
+      "description": "A piece of wood from a bush or stump. Good for crafting."
+    },
+    {
+      "id": "health_potion",
+      "name": "Health Potion",
+      "spritePath": "Objects/pot.png",
+      "type": "consumable",
+      "effectType": "resource",
+      "damage": 0,
+      "range": 0,
+      "cooldown": 0,
+      "description": "Restores 2 hearts. Drink up!"
     }
   ]
 }

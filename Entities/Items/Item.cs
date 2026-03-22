@@ -6,6 +6,7 @@
 // ============================================================================
 
 using System;
+using Microsoft.Xna.Framework;
 using TheGame.Entities;
 
 namespace TheGame.Entities.Items
@@ -19,7 +20,8 @@ namespace TheGame.Entities.Items
         Projectile,         // arrow / fireball — flies forward, dies on hit or max range
         ProjectileReturn,   // boomerang — flies out, then returns to player
         AOE,                 // bomb — placed, detonates after fuse time
-        Key                 // Just a key
+        Key,                // Just a key
+        Resource            // collectible resource (fruit, stone, etc.)
     }
 
     /// <summary>
@@ -29,7 +31,8 @@ namespace TheGame.Entities.Items
     {
         Weapon,
         Consumable,
-        KeyItem
+        KeyItem,
+        Resource
     }
 
     /// <summary>
@@ -51,5 +54,10 @@ namespace TheGame.Entities.Items
         public float Cooldown { get; set; }
         public float Speed { get; set; }
         public float FuseTime { get; set; }
+
+        /// <summary>
+        /// Optional source rectangle for sprite sheet items. Null = use full texture.
+        /// </summary>
+        public Rectangle? SourceRect { get; set; }
     }
 }

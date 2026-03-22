@@ -88,6 +88,17 @@ namespace TheGame.Entities.Items
                     FuseTime = elem.TryGetProperty("fuseTime", out var ft) ? ft.GetSingle() : 0f,
                     Description = elem.GetProperty("description").GetString(),
                 };
+
+                // Optional source rectangle for sprite sheet items
+                if (elem.TryGetProperty("srcX", out var sx))
+                {
+                    item.SourceRect = new Rectangle(
+                        sx.GetInt32(),
+                        elem.GetProperty("srcY").GetInt32(),
+                        elem.GetProperty("srcW").GetInt32(),
+                        elem.GetProperty("srcH").GetInt32());
+                }
+
                 _catalog[item.Id] = item;
             }
         }
@@ -97,6 +108,7 @@ namespace TheGame.Entities.Items
             "weapon" => ItemType.Weapon,
             "consumable" => ItemType.Consumable,
             "key" => ItemType.KeyItem,
+            "resource" => ItemType.Resource,
             _ => ItemType.Weapon
         };
 
@@ -107,6 +119,7 @@ namespace TheGame.Entities.Items
             "projectile_return" => EffectType.ProjectileReturn,
             "aoe" => EffectType.AOE,
             "key" => EffectType.Key,
+            "resource" => EffectType.Resource,
             _ => EffectType.Melee
         };
 
@@ -252,7 +265,11 @@ namespace TheGame.Entities.Items
             if (item != null && _itemSprites.ContainsKey(item.Id))
             {
                 var tex = _itemSprites[item.Id];
-                sb.Draw(tex, new Rectangle(x + 4, y + 4, slotSize - 8, slotSize - 8), Color.White);
+                var dest = new Rectangle(x + 4, y + 4, slotSize - 8, slotSize - 8);
+                if (item.SourceRect.HasValue)
+                    sb.Draw(tex, dest, item.SourceRect.Value, Color.White);
+                else
+                    sb.Draw(tex, dest, Color.White);
             }
 
             // Ammo indicator
@@ -267,6 +284,15 @@ namespace TheGame.Entities.Items
 
             // "X" key hint
             sb.Draw(pixel, new Rectangle(x + slotSize / 2 - 4, y + slotSize + 8, 8, 3), Color.Gray * 0.5f);
+
+            // ── Coin counter ──
+            int coinX = x - 4;
+            int coinY = y + slotSize + 16;
+            // Draw coin icon (procedural)
+            sb.Draw(pixel, new Rectangle(coinX, coinY, 10, 10), new Color(220, 180, 40));
+            sb.Draw(pixel, new Rectangle(coinX + 1, coinY + 1, 8, 8), new Color(255, 215, 50));
+            sb.Draw(pixel, new Rectangle(coinX + 3, coinY + 2, 4, 6), new Color(200, 160, 30));
+            PixelFont.DrawString(sb, Coins.ToString(), coinX + 14, coinY + 1, Color.Gold, 1);
         }
 
         /// <summary>
@@ -288,5 +314,28 @@ namespace TheGame.Entities.Items
         {
             return _itemSprites.ContainsKey(itemId) ? _itemSprites[itemId] : null;
         }
+
+        /// <summary>
+        /// Gets the source rectangle for an item (for sprite sheet items), or null for full texture.
+        /// </summary>
+        public Rectangle? GetSourceRect(string itemId)
+        {
+            if (_catalog.ContainsKey(itemId))
+                return _catalog[itemId].SourceRect;
+            return null;
+        }
+
+        /// <summary>
+        /// Gets an item definition from the catalog by ID.
+        /// </summary>
+        public static Item GetCatalogItem(string itemId)
+        {
+            return _catalog.ContainsKey(itemId) ? _catalog[itemId] : null;
+        }
+
+        /// <summary>
+        /// Total coins the player has.
+        /// </summary>
+        public int Coins { get; set; }
     }
 }

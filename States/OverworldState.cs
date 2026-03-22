@@ -88,6 +88,20 @@ namespace TheGame.States
         }
         private readonly Dictionary<string, List<Decoration>> _roomDecorations = new();
 
+        // ── Collectible pickups ──
+        private struct Collectible
+        {
+            public Vector2 Position;
+            public string ItemId;       // matches items.json id
+            public Rectangle Source;    // sprite source rect
+            public Texture2D Sheet;     // spritesheet
+            public bool Collected;
+            public int RoomX, RoomY;
+        }
+        private readonly List<Collectible> _collectibles = new();
+        private string _pickupMessage;
+        private float _pickupMessageTimer;
+
         // ── Audio ──
         private SoundEffect _swordSfx;
         private SoundEffect _hitSfx;
@@ -549,6 +563,91 @@ namespace TheGame.States
                     });
                 }
             }
+
+            // ── Spawn collectible pickups in each room ──
+            SpawnCollectibles();
+        }
+
+        private void SpawnCollectibles()
+        {
+            var rng = new System.Random(999);
+            int w = Game1.ScreenWidth;
+            int h = Game1.ScreenHeight;
+
+            // Source rects for collectible sprites (verified via pixel analysis)
+            var fruitSrc = new Rectangle(0, 64, 32, 16);     // berry cluster on trees sheet
+            var mushroomSrc = new Rectangle(16, 0, 16, 16);  // medium mushroom on rocks sheet
+            var flowerSrc = new Rectangle(48, 48, 32, 32);   // sunflower on rocks sheet
+            var stoneSrc = new Rectangle(96, 16, 32, 32);    // grey rock on rocks sheet
+            var woodSrc = new Rectangle(0, 96, 32, 16);      // stump on trees sheet
+
+            for (int ry = 0; ry < WorldRoomsY; ry++)
+            {
+                for (int rx = 0; rx < WorldRoomsX; rx++)
+                {
+                    int ox = rx * w;
+                    int oy = ry * h;
+                    int biome = ry <= 1 ? 0 : ry <= 3 ? 1 : 2;
+
+                    // Scatter collectibles based on biome
+                    int fruitCount = biome == 1 ? rng.Next(1, 4) : rng.Next(0, 2);
+                    int stoneCount = biome == 0 ? rng.Next(2, 5) : rng.Next(0, 3);
+                    int flowerCount2 = biome == 1 ? rng.Next(1, 3) : 0;
+                    int mushroomCount = biome == 1 ? rng.Next(0, 3) : 0;
+                    int woodCount = rng.Next(0, 2);
+
+                    for (int i = 0; i < fruitCount; i++)
+                    {
+                        if (_treesSheet != null)
+                            _collectibles.Add(new Collectible
+                            {
+                                Position = new Vector2(ox + 50 + rng.Next(w - 100), oy + 50 + rng.Next(h - 100)),
+                                ItemId = "fruit", Source = fruitSrc, Sheet = _treesSheet,
+                                RoomX = rx, RoomY = ry
+                            });
+                    }
+                    for (int i = 0; i < stoneCount; i++)
+                    {
+                        if (_rocksSheet != null)
+                            _collectibles.Add(new Collectible
+                            {
+                                Position = new Vector2(ox + 50 + rng.Next(w - 100), oy + 50 + rng.Next(h - 100)),
+                                ItemId = "stone", Source = stoneSrc, Sheet = _rocksSheet,
+                                RoomX = rx, RoomY = ry
+                            });
+                    }
+                    for (int i = 0; i < flowerCount2; i++)
+                    {
+                        if (_rocksSheet != null)
+                            _collectibles.Add(new Collectible
+                            {
+                                Position = new Vector2(ox + 50 + rng.Next(w - 100), oy + 50 + rng.Next(h - 100)),
+                                ItemId = "flower", Source = flowerSrc, Sheet = _rocksSheet,
+                                RoomX = rx, RoomY = ry
+                            });
+                    }
+                    for (int i = 0; i < mushroomCount; i++)
+                    {
+                        if (_rocksSheet != null)
+                            _collectibles.Add(new Collectible
+                            {
+                                Position = new Vector2(ox + 50 + rng.Next(w - 100), oy + 50 + rng.Next(h - 100)),
+                                ItemId = "mushroom", Source = mushroomSrc, Sheet = _rocksSheet,
+                                RoomX = rx, RoomY = ry
+                            });
+                    }
+                    for (int i = 0; i < woodCount; i++)
+                    {
+                        if (_treesSheet != null)
+                            _collectibles.Add(new Collectible
+                            {
+                                Position = new Vector2(ox + 50 + rng.Next(w - 100), oy + 50 + rng.Next(h - 100)),
+                                ItemId = "wood", Source = woodSrc, Sheet = _treesSheet,
+                                RoomX = rx, RoomY = ry
+                            });
+                    }
+                }
+            }
         }
 
         // ──────────────────────────────────────────────
@@ -570,25 +669,30 @@ namespace TheGame.States
                     int oy = ry * h; // room origin Y
                     var walls = new List<SolidRect>();
 
+                    // Horizontal walls run between vertical wall edges (inset by t)
+                    // to avoid overlapping corners which cause push-back jitter.
+                    int hx0 = ox + t;       // horizontal walls start after left wall
+                    int hw = w - t * 2;     // horizontal wall width (between left/right walls)
+
                     // ── Top wall (opening in center if room above exists) ──
                     if (ry > 0)
                     {
-                        walls.Add(new SolidRect(ox, oy, w / 2 - 30, t));
-                        walls.Add(new SolidRect(ox + w / 2 + 30, oy, w / 2 - 30, t));
+                        walls.Add(new SolidRect(hx0, oy, hw / 2 - 30 + t, t));
+                        walls.Add(new SolidRect(ox + w / 2 + 30, oy, hw / 2 - 30 + t, t));
                     }
                     else
-                        walls.Add(new SolidRect(ox, oy, w, t));
+                        walls.Add(new SolidRect(hx0, oy, hw, t));
 
                     // ── Bottom wall ──
                     if (ry < WorldRoomsY - 1)
                     {
-                        walls.Add(new SolidRect(ox, oy + h - t, w / 2 - 30, t));
-                        walls.Add(new SolidRect(ox + w / 2 + 30, oy + h - t, w / 2 - 30, t));
+                        walls.Add(new SolidRect(hx0, oy + h - t, hw / 2 - 30 + t, t));
+                        walls.Add(new SolidRect(ox + w / 2 + 30, oy + h - t, hw / 2 - 30 + t, t));
                     }
                     else
-                        walls.Add(new SolidRect(ox, oy + h - t, w, t));
+                        walls.Add(new SolidRect(hx0, oy + h - t, hw, t));
 
-                    // ── Left wall ──
+                    // ── Left wall (full height — vertical walls own the corners) ──
                     if (rx > 0)
                     {
                         walls.Add(new SolidRect(ox, oy, t, h / 2 - 30));
@@ -597,7 +701,7 @@ namespace TheGame.States
                     else
                         walls.Add(new SolidRect(ox, oy, t, h));
 
-                    // ── Right wall ──
+                    // ── Right wall (full height) ──
                     if (rx < WorldRoomsX - 1)
                     {
                         walls.Add(new SolidRect(ox + w - t, oy, t, h / 2 - 30));
@@ -873,6 +977,36 @@ namespace TheGame.States
             var sign8 = new SignPost(new Vector2(6 * w + 400, 2 * h + 100),
                 "THE EDGE OF THE ECHOING WOODS. BEYOND LIES SILENCE.");
             AddInteractable(sign8, 6, 2);
+
+            // ── Treasure Chests ──
+
+            // Room (2,2) — hidden chest in the forest
+            AddInteractable(new TreasureChest(
+                new Vector2(2 * w + 600, 2 * h + 350), "forest_chest", 20, "boomerang", "Boomerang"), 2, 2);
+
+            // Room (4,2) — east plains chest
+            AddInteractable(new TreasureChest(
+                new Vector2(4 * w + 150, 2 * h + 200), "plains_chest", 30), 4, 2);
+
+            // Room (3,1) — highlands chest with bow
+            AddInteractable(new TreasureChest(
+                new Vector2(3 * w + 600, h + 150), "highland_chest", 15, "bow", "Bow"), 3, 1);
+
+            // Room (5,3) — outskirts chest with bombs
+            AddInteractable(new TreasureChest(
+                new Vector2(5 * w + 300, 3 * h + 250), "outskirts_chest", 25, "bomb", "Bombs"), 5, 3);
+
+            // Room (1,2) — deep woods chest with health potion
+            AddInteractable(new TreasureChest(
+                new Vector2(w + 400, 2 * h + 300), "deepwoods_chest", 10, "health_potion", "Health Potion"), 1, 2);
+
+            // Room (4,3) — swamp edge chest
+            AddInteractable(new TreasureChest(
+                new Vector2(4 * w + 500, 3 * h + 350), "swamp_chest", 40), 4, 3);
+
+            // Room (6,1) — far east mountain chest with axe
+            AddInteractable(new TreasureChest(
+                new Vector2(6 * w + 200, h + 300), "mountain_chest", 20, "axe", "Axe"), 6, 1);
         }
 
         private void AddInteractable(Interactable interactable, int roomX, int roomY)
@@ -1100,6 +1234,7 @@ namespace TheGame.States
             // ── Check NPC/Sign interaction (E key) ──
             if (kb.IsKeyDown(Keys.E) && _prevKb.IsKeyUp(Keys.E))
             {
+                // First check NPC/Sign
                 foreach (var re in _interactables)
                 {
                     if (!re.IsActive) continue;
@@ -1115,7 +1250,40 @@ namespace TheGame.States
                         }
                     }
                 }
+
             }
+
+            // ── Auto-pickup collectibles on walk-over ──
+            {
+                Rectangle playerReach = new Rectangle(
+                    _player.BoundingBox.X - 20, _player.BoundingBox.Y - 20,
+                    _player.BoundingBox.Width + 40, _player.BoundingBox.Height + 40);
+
+                for (int ci = 0; ci < _collectibles.Count; ci++)
+                {
+                    var c = _collectibles[ci];
+                    if (c.Collected) continue;
+                    if (c.RoomX != _camera.RoomX || c.RoomY != _camera.RoomY) continue;
+
+                    int cw = c.Source.Width * 2;
+                    int ch = c.Source.Height * 2;
+                    Rectangle cBounds = new Rectangle((int)c.Position.X, (int)c.Position.Y, cw, ch);
+                    if (playerReach.Intersects(cBounds))
+                    {
+                        _player.Inventory.AddItem(c.ItemId);
+                        c.Collected = true;
+                        _collectibles[ci] = c;
+                        string itemName = c.ItemId.Substring(0, 1).ToUpper() + c.ItemId.Substring(1);
+                        _pickupMessage = $"+1 {itemName}";
+                        _pickupMessageTimer = 1.5f;
+                        break;
+                    }
+                }
+            }
+
+            // Tick pickup message
+            if (_pickupMessageTimer > 0f)
+                _pickupMessageTimer -= dt;
 
             // ── Track state for SFX ──
             string prevState = _player.CurrentStateName;
@@ -1126,9 +1294,9 @@ namespace TheGame.States
             if (_player.CurrentStateName == "attack" && prevState != "attack")
                 _swordSfx?.Play(0.5f, 0f, 0f);
 
-            // ── 2. Resolve player vs. walls ──
+            // ── 2. Resolve player vs. walls (axis-separated move + collide) ──
             var walls = GetCurrentWalls();
-            CollisionSystem.MoveAndResolve(_player, walls, 0);
+            CollisionSystem.MoveAndResolve(_player, walls, dt);
 
             // ── 3. Update enemies (only in current room) ──
             _rooms.UpdateEnemies(gameTime, _player.Position);
@@ -1152,6 +1320,13 @@ namespace TheGame.States
             {
                 _deathSfx?.Play(0.5f, 0f, 0f);
                 _camera.Shake(5f, 0.2f); // shake on enemy death
+
+                // Award coins for each kill
+                int kills = aliveEnemiesBefore - aliveEnemiesAfter;
+                int coinsEarned = kills * (2 + new System.Random().Next(3)); // 2-4 coins per kill
+                _player.Inventory.Coins += coinsEarned;
+                _pickupMessage = $"+{coinsEarned} Coins";
+                _pickupMessageTimer = 1.5f;
 
                 // Check quest flags — raccoon defeated (room 1,1)
                 if (_camera.RoomX == 1 && _camera.RoomY == 1 && aliveEnemiesAfter == 0)
@@ -1230,6 +1405,14 @@ namespace TheGame.States
                     var item = _player.Inventory.EquippedItem;
                     if (item != null)
                         _player.Inventory.AddItem("bow", 10);
+                }
+                // Breakables also drop a few coins
+                if (drop != DropType.None)
+                {
+                    int coins = 1 + new System.Random().Next(3);
+                    _player.Inventory.Coins += coins;
+                    _pickupMessage = $"+{coins} Coins";
+                    _pickupMessageTimer = 1.5f;
                 }
             }
 
@@ -1434,6 +1617,34 @@ namespace TheGame.States
                         }
                     }
                 }
+            }
+
+            // 1b. Collectible pickups (with floating bob and glow)
+            foreach (var c in _collectibles)
+            {
+                if (c.Collected) continue;
+                if (c.RoomX != _camera.RoomX && c.RoomX != _camera.RoomX - 1 && c.RoomX != _camera.RoomX + 1) continue;
+                if (c.RoomY != _camera.RoomY && c.RoomY != _camera.RoomY - 1 && c.RoomY != _camera.RoomY + 1) continue;
+
+                var cc = c;
+                int drawW = cc.Source.Width * 2;  // scale up 2x
+                int drawH = cc.Source.Height * 2;
+                renderQueue.Add((cc.Position.Y + drawH, () =>
+                {
+                    float bob = MathF.Sin(_lowHealthTimer * 3f + cc.Position.X) * 3f;
+                    int dx = (int)cc.Position.X;
+                    int dy = (int)cc.Position.Y + (int)bob;
+
+                    // Glow circle
+                    sb.Draw(px, new Rectangle(dx - 2, dy - 2, drawW + 4, drawH + 4), Color.Yellow * 0.12f);
+
+                    // Sprite
+                    sb.Draw(cc.Sheet, new Rectangle(dx, dy, drawW, drawH), cc.Source, Color.White);
+
+                    // Sparkle indicator (shows it's collectible)
+                    float sparkle = MathF.Sin(_lowHealthTimer * 5f + cc.Position.Y) * 0.5f + 0.5f;
+                    sb.Draw(px, new Rectangle(dx + drawW / 2 - 2, dy - 4, 4, 4), Color.White * sparkle);
+                }));
             }
 
             // 2. Buildings
@@ -1700,6 +1911,17 @@ namespace TheGame.States
                         sb.Draw(px, new Rectangle(indicatorX + rx * 16 + 14, indicatorY + ry * 12, 1, 10), Color.Gold);
                     }
                 }
+            }
+
+            // ── Pickup message ──
+            if (_pickupMessageTimer > 0f && _pickupMessage != null)
+            {
+                float alpha = System.Math.Min(1f, _pickupMessageTimer / 0.3f);
+                int msgW = PixelFont.MeasureWidth(_pickupMessage, 2);
+                int msgX = Game1.ScreenWidth / 2 - msgW / 2;
+                int msgY = Game1.ScreenHeight - 60;
+                sb.Draw(px, new Rectangle(msgX - 8, msgY - 4, msgW + 16, 24), Color.Black * (0.6f * alpha));
+                PixelFont.DrawString(sb, _pickupMessage, msgX, msgY, Color.Lime * alpha, 2);
             }
 
             // ── Damage flash overlay ──

@@ -29,6 +29,9 @@ namespace TheGame.Core
 
     public class Game1 : Game
     {
+        // ── Singleton ──
+        public static Game1 Instance { get; private set; }
+
         // ── Graphics ──
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -69,6 +72,7 @@ namespace TheGame.Core
 
         public Game1()
         {
+            Instance = this;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -255,8 +259,19 @@ namespace TheGame.Core
                     _pauseMenuState.Draw(_spriteBatch);
                     break;
                 case GameState.Inventory:
-                    // Draw overworld (frozen) then overlay inventory
-                    _overworldState.Draw(_spriteBatch);
+                    // Draw the state we came from (frozen) then overlay inventory
+                    switch (_stateBeforePause)
+                    {
+                        case GameState.Overworld:
+                            _overworldState.Draw(_spriteBatch);
+                            break;
+                        case GameState.Interior:
+                            _interiorState.Draw(_spriteBatch);
+                            break;
+                        case GameState.Dungeon:
+                            _dungeonState.Draw(_spriteBatch);
+                            break;
+                    }
                     _inventoryState.Draw(_spriteBatch);
                     break;
             }

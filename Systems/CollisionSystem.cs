@@ -74,39 +74,56 @@ namespace TheGame.Systems
 
         /// <summary>
         /// Checks the entity's bounding box against all solids and pushes
-        /// it out along the specified axis.
+        /// it out along the specified axis. Uses multiple passes to handle
+        /// corner cases where walls share edges.
         /// </summary>
         private static void ResolveAxis(Entity entity, List<SolidRect> solids, bool resolveX)
         {
-            Rectangle entityBox = entity.BoundingBox;
-
-            for (int i = 0; i < solids.Count; i++)
+            // Two passes to handle corner jitter from overlapping walls
+            for (int pass = 0; pass < 2; pass++)
             {
-                Rectangle wall = solids[i].Bounds;
-                if (!entityBox.Intersects(wall)) continue;
+                Rectangle entityBox = entity.BoundingBox;
+                bool resolved = false;
 
-                // Calculate overlap on each axis
-                Rectangle overlap = Rectangle.Intersect(entityBox, wall);
-
-                if (resolveX)
+                for (int i = 0; i < solids.Count; i++)
                 {
-                    // Push out on X axis
-                    if (entityBox.Center.X < wall.Center.X)
-                        entity.Position.X -= overlap.Width;  // push left
+                    Rectangle wall = solids[i].Bounds;
+                    if (!entityBox.Intersects(wall)) continue;
+
+                    // Calculate overlap on each axis
+                    Rectangle overlap = Rectangle.Intersect(entityBox, wall);
+
+                    if (resolveX)
+                    {
+                        if (overlap.Width <= 0) continue;
+                        // Use entity's previous position relative to wall edge for stable direction
+                        float entityRight = entityBox.Right;
+                        float entityLeft = entityBox.Left;
+                        float wallCenterX = wall.X + wall.Width / 2f;
+
+                        if (entityLeft + entityBox.Width / 2f < wallCenterX)
+                            entity.Position.X -= overlap.Width;  // push left
+                        else
+                            entity.Position.X += overlap.Width;  // push right
+                    }
                     else
-                        entity.Position.X += overlap.Width;  // push right
-                }
-                else
-                {
-                    // Push out on Y axis
-                    if (entityBox.Center.Y < wall.Center.Y)
-                        entity.Position.Y -= overlap.Height; // push up
-                    else
-                        entity.Position.Y += overlap.Height; // push down
+                    {
+                        if (overlap.Height <= 0) continue;
+                        float wallCenterY = wall.Y + wall.Height / 2f;
+
+                        if (entityBox.Top + entityBox.Height / 2f < wallCenterY)
+                            entity.Position.Y -= overlap.Height; // push up
+                        else
+                            entity.Position.Y += overlap.Height; // push down
+                    }
+
+                    // Refresh the bounding box after adjustment
+                    entityBox = entity.BoundingBox;
+                    resolved = true;
                 }
 
-                // Refresh the bounding box after adjustment
-                entityBox = entity.BoundingBox;
+                // If nothing was resolved this pass, no need for another
+                if (!resolved) break;
             }
         }
 

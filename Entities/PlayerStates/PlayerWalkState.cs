@@ -62,7 +62,7 @@ namespace TheGame.Entities.PlayerStates
             else
                 player.Facing = input.Y > 0 ? FacingDirection.Down : FacingDirection.Up;
 
-            player.Position += player.Velocity * dt;
+            // Position is updated by CollisionSystem.MoveAndResolve (axis-separated)
             player.UpdateWalkAnimation(dt);
         }
 
