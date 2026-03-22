@@ -73,7 +73,15 @@ namespace TheGame.States
 
         // ── Decoration sprites (Sprout Lands) ──
         private Texture2D _treesSheet;   // Trees, stumps and bushes
+        private Texture2D _woodsSheet;   // free_pixel_16_woods (alt trees)
         private Texture2D _rocksSheet;   // Mushrooms, Flowers, Stones
+        // ── Standalone tree sprites (128x128 each, complete with trunk) ──
+        private Texture2D _tree02;       // round green bush-tree
+        private Texture2D _tree03;       // dark green conifer
+        private Texture2D _tree04;       // green tree with roots
+        // ── Grass detail sprites ──
+        private Texture2D _grass2Sprite;
+        private Texture2D _grass3Sprite; // flower
         private Texture2D _roofSheet;    // wooden_house_roof_tilset
         private Texture2D _wallSheet;    // wooden_house_walls_tilset
         private Texture2D _fenceSheet;   // fences
@@ -245,9 +253,24 @@ namespace TheGame.States
             if (AssetLoader.Exists("Audio/SFX/death.wav"))
                 _deathSfx = AssetLoader.LoadSound("Audio/SFX/death.wav");
 
+            // ── Standalone tree sprites ──
+            if (AssetLoader.Exists("Objects/02.png"))
+                _tree02 = AssetLoader.LoadTexture("Objects/02.png");
+            if (AssetLoader.Exists("Objects/03.png"))
+                _tree03 = AssetLoader.LoadTexture("Objects/03.png");
+            if (AssetLoader.Exists("Objects/04.png"))
+                _tree04 = AssetLoader.LoadTexture("Objects/04.png");
+            // ── Grass detail sprites ──
+            if (AssetLoader.Exists("Objects/grass_2.png"))
+                _grass2Sprite = AssetLoader.LoadTexture("Objects/grass_2.png");
+            if (AssetLoader.Exists("Objects/grass_3.png"))
+                _grass3Sprite = AssetLoader.LoadTexture("Objects/grass_3.png");
+
             // ── Sprout Lands decoration sprites ──
             if (AssetLoader.Exists("Objects/Nature/Trees, stumps and bushes.png"))
                 _treesSheet = AssetLoader.LoadTexture("Objects/Nature/Trees, stumps and bushes.png");
+            if (AssetLoader.Exists("Tiles/free_pixel_16_woods.png"))
+                _woodsSheet = AssetLoader.LoadTexture("Tiles/free_pixel_16_woods.png");
             if (AssetLoader.Exists("Objects/Nature/Mushrooms, Flowers, Stones.png"))
                 _rocksSheet = AssetLoader.LoadTexture("Objects/Nature/Mushrooms, Flowers, Stones.png");
             if (AssetLoader.Exists("Tiles/Buildings/wooden_house_roof_tilset.png"))
@@ -347,38 +370,37 @@ namespace TheGame.States
 
         private void GenerateDecorations()
         {
-            // Trees sheet: 192x112 — contains trees (~32x32), stumps, bushes, fruits
-            // Rocks sheet: 192x80 — mushrooms, flowers, stones of various sizes
+            // Rocks sheet (192x80): mushrooms, flowers, stones of various sizes
             var rng = new System.Random(123); // deterministic
             int w = Game1.ScreenWidth;
             int h = Game1.ScreenHeight;
 
-            // Pre-define source rects for common decorations
-            // Trees (from trees sheet) — large trees are ~32x32 at position (0,0), (32,0), etc.
-            var treeSources = new Rectangle[]
-            {
-                new Rectangle(0, 0, 48, 48),      // round tree 1
-                new Rectangle(48, 0, 48, 48),     // round tree 2
-                new Rectangle(96, 0, 48, 48),     // pine tree
-                new Rectangle(144, 0, 48, 48),    // big tree
-            };
-            // Small bushes/stumps (~16x16)
+            // ── Standalone tree textures (128x128 complete trees with trunk) ──
+            // These look far better than the 32x32 canopy-only cuts from the sheet.
+            var standaloneTrees = new List<(Texture2D tex, float scale)>();
+            if (_tree02 != null) standaloneTrees.Add((_tree02, 0.50f)); // round green bush-tree
+            if (_tree03 != null) standaloneTrees.Add((_tree03, 0.50f)); // dark green conifer
+            if (_tree04 != null) standaloneTrees.Add((_tree04, 0.50f)); // green tree with roots
+            // Big oak from the trees sheet (this one looks good as a full sprite)
+            bool hasBigOak = _treesSheet != null;
+
+            // Small bushes/stumps (~16x16) from trees sheet row at y=48
             var bushSources = new Rectangle[]
             {
-                new Rectangle(0, 64, 16, 16),      // small bush
-                new Rectangle(16, 64, 16, 16),     // stump
-                new Rectangle(32, 64, 16, 16),     // berry bush
-                new Rectangle(64, 64, 16, 16),     // mushroom
+                new Rectangle(0, 48, 16, 16),      // small bush
+                new Rectangle(16, 48, 16, 16),     // stump
+                new Rectangle(32, 48, 16, 16),     // berry bush
+                new Rectangle(48, 48, 16, 16),     // small plant
             };
-            // Rocks (from rocks sheet) — stones are in bottom rows
+            // Rocks (from rocks sheet) — rows 2-3
             var rockSources = new Rectangle[]
             {
                 new Rectangle(0, 48, 32, 32),      // large rock
-                new Rectangle(32, 48, 32, 32),      // rock cluster
-                new Rectangle(64, 48, 16, 16),      // small rock
-                new Rectangle(80, 48, 16, 16),      // pebble
+                new Rectangle(32, 48, 32, 32),     // rock cluster
+                new Rectangle(64, 48, 16, 16),     // small rock
+                new Rectangle(80, 48, 16, 16),     // pebble
             };
-            // Flowers (from rocks sheet)
+            // Flowers (from rocks sheet) — row 1
             var flowerSources = new Rectangle[]
             {
                 new Rectangle(0, 16, 16, 16),      // flower 1
@@ -386,6 +408,11 @@ namespace TheGame.States
                 new Rectangle(32, 16, 16, 16),     // flower 3
                 new Rectangle(48, 16, 16, 16),     // flower 4
             };
+            // Grass detail sprites (standalone 64x64 PNGs)
+            var grassTextures = new List<Texture2D>();
+            if (_grassSprite != null) grassTextures.Add(_grassSprite);
+            if (_grass2Sprite != null) grassTextures.Add(_grass2Sprite);
+            if (_grass3Sprite != null) grassTextures.Add(_grass3Sprite);
 
             for (int ry = 0; ry < WorldRoomsY; ry++)
             {
@@ -402,12 +429,13 @@ namespace TheGame.States
                     int rockCount = biome == 0 ? rng.Next(3, 7) : rng.Next(1, 3);
                     int flowerCount = biome == 1 ? rng.Next(3, 8) : rng.Next(0, 3);
                     int bushCount = rng.Next(2, 5);
+                    int grassCount = biome == 1 ? rng.Next(4, 10) : rng.Next(1, 4);
 
                     // Skip starting room center area for decorations
                     bool isStartRoom = (rx == 3 && ry == 2);
 
-                    // Trees
-                    if (_treesSheet != null)
+                    // ── Trees (standalone complete sprites) ──
+                    if (standaloneTrees.Count > 0)
                     {
                         for (int i = 0; i < treeCount; i++)
                         {
@@ -415,23 +443,55 @@ namespace TheGame.States
                             float py = oy + 40 + rng.Next(h - 80);
                             if (isStartRoom && px > ox + 200 && px < ox + 600 && py > oy + 100 && py < oy + 400)
                                 continue;
-                            decs.Add(new Decoration
-                            {
-                                Source = treeSources[rng.Next(treeSources.Length)],
-                                Position = new Vector2(px, py),
-                                Sheet = _treesSheet,
-                                Scale = 2f
-                            });
-                            // Tree trunk solid hitbox based on 48x48 source * 2f scale
-                            AddWall(rx, ry, new SolidRect((int)px + 32, (int)py + 64, 32, 24));
-                        }
 
-                        // Bushes
+                            // Pick a tree variant; occasionally use big oak for variety
+                            bool useBigOak = hasBigOak && rng.Next(6) == 0;
+                            if (useBigOak)
+                            {
+                                // Big oak from trees sheet (128,0, 64x80) at 1.0 scale
+                                decs.Add(new Decoration
+                                {
+                                    Source = new Rectangle(128, 0, 64, 80),
+                                    Position = new Vector2(px, py),
+                                    Sheet = _treesSheet,
+                                    Scale = 1.0f
+                                });
+                                AddWall(rx, ry, new SolidRect(
+                                    (int)px + 16, (int)py + 56, 32, 20));
+                            }
+                            else
+                            {
+                                // Standalone tree (128x128 PNG, full rect)
+                                int treeIdx = rng.Next(standaloneTrees.Count);
+                                var (tex, scale) = standaloneTrees[treeIdx];
+                                // Vary scale slightly for natural look
+                                float s = scale + (rng.Next(3) - 1) * 0.05f;
+                                int drawnW = (int)(128 * s);
+                                int drawnH = (int)(128 * s);
+                                decs.Add(new Decoration
+                                {
+                                    Source = new Rectangle(0, 0, 128, 128),
+                                    Position = new Vector2(px, py),
+                                    Sheet = tex,
+                                    Scale = s
+                                });
+                                // Trunk hitbox at bottom center
+                                int trunkW = System.Math.Max(16, drawnW / 3);
+                                AddWall(rx, ry, new SolidRect(
+                                    (int)px + drawnW / 2 - trunkW / 2,
+                                    (int)py + drawnH - 20,
+                                    trunkW, 16));
+                            }
+                        }
+                    }
+
+                    // ── Bushes (from trees sheet) ──
+                    if (_treesSheet != null)
+                    {
                         for (int i = 0; i < bushCount; i++)
                         {
                             float bx2 = ox + 30 + rng.Next(w - 60);
                             float by2 = oy + 30 + rng.Next(h - 60);
-                            // Skip bush if it overlaps the building area in start room
                             if (isStartRoom && bx2 > ox + 60 && bx2 < ox + 300 && by2 > oy + 20 && by2 < oy + 220)
                                 continue;
                             decs.Add(new Decoration
@@ -444,21 +504,23 @@ namespace TheGame.States
                         }
                     }
 
-                    // Rocks
+                    // ── Rocks ──
                     if (_rocksSheet != null)
                     {
                         for (int i = 0; i < rockCount; i++)
                         {
+                            var src = rockSources[rng.Next(rockSources.Length)];
+                            float rockScale = src.Width >= 32 ? 1.5f : 2f;
                             decs.Add(new Decoration
                             {
-                                Source = rockSources[rng.Next(rockSources.Length)],
+                                Source = src,
                                 Position = new Vector2(ox + 30 + rng.Next(w - 60), oy + 30 + rng.Next(h - 60)),
                                 Sheet = _rocksSheet,
-                                Scale = 2f
+                                Scale = rockScale
                             });
                         }
 
-                        // Flowers (mostly in woods)
+                        // Flowers (mostly in woods biome)
                         for (int i = 0; i < flowerCount; i++)
                         {
                             decs.Add(new Decoration
@@ -466,7 +528,24 @@ namespace TheGame.States
                                 Source = flowerSources[rng.Next(flowerSources.Length)],
                                 Position = new Vector2(ox + 20 + rng.Next(w - 40), oy + 20 + rng.Next(h - 40)),
                                 Sheet = _rocksSheet,
-                                Scale = 2f
+                                Scale = 1.5f
+                            });
+                        }
+                    }
+
+                    // ── Grass tufts (standalone sprites for ground detail) ──
+                    if (grassTextures.Count > 0)
+                    {
+                        for (int i = 0; i < grassCount; i++)
+                        {
+                            var gTex = grassTextures[rng.Next(grassTextures.Count)];
+                            int gSize = gTex.Width; // 16 or 64
+                            decs.Add(new Decoration
+                            {
+                                Source = new Rectangle(0, 0, gSize, gSize),
+                                Position = new Vector2(ox + 10 + rng.Next(w - 20), oy + 10 + rng.Next(h - 20)),
+                                Sheet = gTex,
+                                Scale = gSize == 16 ? 2f : 0.5f
                             });
                         }
                     }
@@ -508,7 +587,7 @@ namespace TheGame.States
                         Source = flowerSources[i % flowerSources.Length],
                         Position = new Vector2(sox + 60 + i * 30, soy + 210 + (i % 3) * 12),
                         Sheet = _rocksSheet,
-                        Scale = 2f
+                        Scale = 1.5f
                     });
                 }
 
@@ -520,7 +599,7 @@ namespace TheGame.States
                         Source = flowerSources[i % flowerSources.Length],
                         Position = new Vector2(sox + 100 + i * 60, soy + 320 + (i % 4) * 30),
                         Sheet = _rocksSheet,
-                        Scale = 2f
+                        Scale = 1.5f
                     });
                 }
 
@@ -528,12 +607,12 @@ namespace TheGame.States
                 startDecs.Add(new Decoration
                 {
                     Source = new Rectangle(0, 48, 32, 32), Position = new Vector2(sox + 50, soy + 380),
-                    Sheet = _rocksSheet, Scale = 2f
+                    Sheet = _rocksSheet, Scale = 1.5f
                 });
                 startDecs.Add(new Decoration
                 {
                     Source = new Rectangle(32, 48, 32, 32), Position = new Vector2(sox + 680, soy + 400),
-                    Sheet = _rocksSheet, Scale = 2f
+                    Sheet = _rocksSheet, Scale = 1.5f
                 });
             }
 
@@ -545,7 +624,7 @@ namespace TheGame.States
                 {
                     startDecs.Add(new Decoration
                     {
-                        Source = new Rectangle(0, 64, 16, 16), // small bush
+                        Source = new Rectangle(0, 48, 16, 16), // small bush
                         Position = new Vector2(sox + 70 + i * 22, soy + 195),
                         Sheet = _treesSheet,
                         Scale = 2f
@@ -556,7 +635,7 @@ namespace TheGame.States
                 {
                     startDecs.Add(new Decoration
                     {
-                        Source = new Rectangle(32, 64, 16, 16), // berry bush
+                        Source = new Rectangle(32, 48, 16, 16), // berry bush
                         Position = new Vector2(sox + 270, soy + 80 + i * 40),
                         Sheet = _treesSheet,
                         Scale = 2f
@@ -1223,7 +1302,7 @@ namespace TheGame.States
                     }
                     else if (warp.Target == WarpTarget.Dungeon)
                     {
-                        GameRef.ChangeState(GameState.Dungeon);
+                        GameRef.EnterDungeon();
                         _prevKb = kb;
                         return;
                     }
@@ -1312,6 +1391,13 @@ namespace TheGame.States
 
             CollisionSystem.CheckAttackHits(_player, activeEnemies);
             CollisionSystem.CheckEnemyContact(_player, activeEnemies);
+
+            // Player death check
+            if (!_player.IsAlive)
+            {
+                GameRef.TriggerGameOver();
+                return;
+            }
 
             int aliveEnemiesAfter = 0;
             foreach (var e in activeEnemies) if (e.IsAlive) aliveEnemiesAfter++;

@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TheGame.Core;
+using TheGame.Systems;
 using TheGame.Utils;
 
 namespace TheGame.States
@@ -23,6 +24,8 @@ namespace TheGame.States
         private float _titleFloat;   // for floating animation
         private float _bgScroll;     // slow background scroll
         private KeyboardState _prevKb = Keyboard.GetState();
+        private int _menuIndex;
+        private bool _hasSave;
 
         public MenuState(Game1 game, ContentManager content)
             : base(game, content)
@@ -50,9 +53,42 @@ namespace TheGame.States
             // Slow background scroll
             _bgScroll += dt * 8f;
 
-            // Transition on Enter
+            // Check for save
+            _hasSave = SaveSystem.HasSave();
+
+            // Navigate menu
+            if ((kb.IsKeyDown(Keys.W) && _prevKb.IsKeyUp(Keys.W)) ||
+                (kb.IsKeyDown(Keys.Up) && _prevKb.IsKeyUp(Keys.Up)))
+            {
+                _menuIndex--;
+                if (_menuIndex < 0) _menuIndex = _hasSave ? 1 : 0;
+            }
+            if ((kb.IsKeyDown(Keys.S) && _prevKb.IsKeyUp(Keys.S)) ||
+                (kb.IsKeyDown(Keys.Down) && _prevKb.IsKeyUp(Keys.Down)))
+            {
+                _menuIndex++;
+                if (_menuIndex > (_hasSave ? 1 : 0)) _menuIndex = 0;
+            }
+
+            // Confirm
             if (kb.IsKeyDown(Keys.Enter) && _prevKb.IsKeyUp(Keys.Enter))
-                GameRef.ChangeState(GameState.Overworld);
+            {
+                if (_menuIndex == 0)
+                {
+                    // New Game
+                    GameRef.ChangeState(GameState.Overworld);
+                }
+                else if (_menuIndex == 1 && _hasSave)
+                {
+                    // Continue — load save
+                    var data = SaveSystem.Load();
+                    if (data != null)
+                    {
+                        SaveSystem.ApplySave(GameRef, GameRef.SharedPlayer, data);
+                        GameRef.ChangeState(GameState.Overworld);
+                    }
+                }
+            }
 
             _prevKb = kb;
         }
@@ -117,25 +153,32 @@ namespace TheGame.States
             PixelFont.DrawCenteredWithShadow(spriteBatch, "A ZELDA-LIKE ADVENTURE", lineY + 20,
                 new Color(150, 200, 150), scale: 2);
 
-            // ── Blinking "PRESS ENTER TO START" ──
-            if (_showPrompt)
+            // ── Menu options ──
+            int menuY = 270;
+            string[] options = _hasSave ? new[] { "NEW GAME", "CONTINUE" } : new[] { "NEW GAME" };
+            for (int i = 0; i < options.Length; i++)
             {
-                PixelFont.DrawCenteredWithShadow(spriteBatch, "PRESS ENTER TO START", 290,
-                    Color.White, scale: 3);
+                bool selected = (i == _menuIndex);
+                Color c = selected ? Color.White : new Color(120, 140, 120);
+                int scale = selected ? 3 : 2;
+                int oy = menuY + i * 35;
+
+                PixelFont.DrawCenteredWithShadow(spriteBatch, options[i], oy, c, scale);
+                if (selected && _showPrompt)
+                {
+                    int tw = PixelFont.MeasureWidth(options[i], scale);
+                    PixelFont.DrawString(spriteBatch, "-", Game1.ScreenWidth / 2 - tw / 2 - 20, oy,
+                        Color.Gold, scale);
+                }
             }
 
             // ── Controls hint ──
-            int hintY = 370;
+            int hintY = 380;
             Color hintColor = new Color(120, 140, 120);
 
-            PixelFont.DrawCentered(spriteBatch, "CONTROLS", hintY, Color.Gray, scale: 2);
-
-            hintY += 25;
-            PixelFont.DrawCentered(spriteBatch, "WASD - MOVE", hintY, hintColor, scale: 2);
-            hintY += 20;
-            PixelFont.DrawCentered(spriteBatch, "SPACE - ATTACK", hintY, hintColor, scale: 2);
-            hintY += 20;
-            PixelFont.DrawCentered(spriteBatch, "X - USE ITEM  Q/E - CYCLE", hintY, hintColor, scale: 2);
+            PixelFont.DrawCentered(spriteBatch, "WASD - MOVE  SPACE - ATTACK", hintY, hintColor, scale: 1);
+            hintY += 16;
+            PixelFont.DrawCentered(spriteBatch, "X - USE ITEM  Q/E - CYCLE  I - INVENTORY", hintY, hintColor, scale: 1);
         }
     }
 }

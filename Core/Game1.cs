@@ -24,7 +24,8 @@ namespace TheGame.Core
         Interior,
         Dungeon,
         Paused,
-        Inventory
+        Inventory,
+        GameOver
     }
 
     public class Game1 : Game
@@ -50,6 +51,7 @@ namespace TheGame.Core
         private States.PauseMenuState _pauseMenuState;
         private States.InteriorState _interiorState;
         private States.InventoryState _inventoryState;
+        private States.GameOverState _gameOverState;
 
         // ── Shared Player (persists across states) ──
         public Player SharedPlayer { get; private set; }
@@ -118,6 +120,7 @@ namespace TheGame.Core
             _pauseMenuState = new States.PauseMenuState(this, Content);
             _interiorState = new States.InteriorState(this, Content);
             _inventoryState = new States.InventoryState(this, Content);
+            _gameOverState = new States.GameOverState(this, Content);
         }
 
         // ── Public API for state transitions ──
@@ -165,6 +168,27 @@ namespace TheGame.Core
             CurrentState = _stateBeforePause;
         }
 
+        /// <summary>
+        /// Enters the dungeon with a fade transition.
+        /// </summary>
+        public void EnterDungeon()
+        {
+            _fade.Start(() =>
+            {
+                _dungeonState.EnterDungeon(SharedPlayer);
+                CurrentState = GameState.Dungeon;
+            });
+        }
+
+        /// <summary>
+        /// Triggers the Game Over screen.
+        /// </summary>
+        public void TriggerGameOver()
+        {
+            _gameOverState.Reset();
+            CurrentState = GameState.GameOver;
+        }
+
         public void QuitGame() => Exit();
 
         // ── Core Loop ──
@@ -210,6 +234,9 @@ namespace TheGame.Core
                         break;
                     case GameState.Inventory:
                         _inventoryState.Update(gameTime);
+                        break;
+                    case GameState.GameOver:
+                        _gameOverState.Update(gameTime);
                         break;
                 }
             }
@@ -273,6 +300,9 @@ namespace TheGame.Core
                             break;
                     }
                     _inventoryState.Draw(_spriteBatch);
+                    break;
+                case GameState.GameOver:
+                    _gameOverState.Draw(_spriteBatch);
                     break;
             }
 

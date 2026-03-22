@@ -282,6 +282,14 @@ namespace TheGame.Entities
             CurrentHealth = Math.Min(CurrentHealth + amount, MaxHealth);
         }
 
+        /// <summary>
+        /// Set health directly (for save/load).
+        /// </summary>
+        public void SetHealth(int hp)
+        {
+            CurrentHealth = Math.Clamp(hp, 0, MaxHealth);
+        }
+
         // ── Drawing ──
 
         public override void Draw(SpriteBatch spriteBatch)

@@ -11,17 +11,20 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TheGame.Core;
+using TheGame.Systems;
 using TheGame.Utils;
 
 namespace TheGame.States
 {
     public class PauseMenuState : GameStateBase
     {
-        private readonly string[] _options = { "RESUME", "CONTROLS", "TITLE SCREEN", "QUIT" };
+        private readonly string[] _options = { "RESUME", "SAVE GAME", "CONTROLS", "TITLE SCREEN", "QUIT" };
         private int _selectedIndex;
         private KeyboardState _prevKb = Keyboard.GetState();
         private bool _showControls;
         private float _cursorBlink;
+        private string _saveMessage;
+        private float _saveMessageTimer;
 
         public PauseMenuState(Game1 game, ContentManager content)
             : base(game, content)
@@ -42,6 +45,7 @@ namespace TheGame.States
             KeyboardState kb = Keyboard.GetState();
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             _cursorBlink += dt * 3f;
+            if (_saveMessageTimer > 0f) _saveMessageTimer -= dt;
 
             if (_showControls)
             {
@@ -80,13 +84,18 @@ namespace TheGame.States
                     case 0: // Resume
                         GameRef.ResumeFromPause();
                         break;
-                    case 1: // Controls
+                    case 1: // Save Game
+                        bool saved = SaveSystem.Save(GameRef, GameRef.SharedPlayer, 0, 0);
+                        _saveMessage = saved ? "GAME SAVED!" : "SAVE FAILED!";
+                        _saveMessageTimer = 2f;
+                        break;
+                    case 2: // Controls
                         _showControls = true;
                         break;
-                    case 2: // Title Screen
+                    case 3: // Title Screen
                         GameRef.ChangeState(GameState.Menu);
                         break;
-                    case 3: // Quit
+                    case 4: // Quit
                         GameRef.QuitGame();
                         break;
                 }
@@ -156,6 +165,14 @@ namespace TheGame.States
                     float alpha = 0.5f + 0.5f * System.MathF.Sin(_cursorBlink);
                     PixelFont.DrawString(spriteBatch, "-", arrowX, y, Color.Gold * alpha, scale);
                 }
+            }
+
+            // ── Save message ──
+            if (_saveMessageTimer > 0f && _saveMessage != null)
+            {
+                Color msgColor = _saveMessage.Contains("SAVED") ? Color.Lime : Color.Red;
+                PixelFont.DrawCentered(spriteBatch, _saveMessage,
+                    boxY + boxH - 50, msgColor * System.MathF.Min(1f, _saveMessageTimer), scale: 2);
             }
 
             // ── Bottom hint ──

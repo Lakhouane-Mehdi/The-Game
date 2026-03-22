@@ -337,5 +337,36 @@ namespace TheGame.Entities.Items
         /// Total coins the player has.
         /// </summary>
         public int Coins { get; set; }
+
+        /// <summary>
+        /// Returns all items in the inventory for serialization.
+        /// </summary>
+        public IReadOnlyList<Item> GetAllItems() => _itemList;
+
+        /// <summary>
+        /// Returns the quantity of an item by ID.
+        /// </summary>
+        public int GetQuantity(string itemId)
+        {
+            foreach (var kv in _items)
+                if (kv.Key.Id == itemId)
+                    return kv.Value;
+            return 0;
+        }
+
+        /// <summary>
+        /// Equip an item by its ID. Used for save/load.
+        /// </summary>
+        public void EquipById(string itemId)
+        {
+            for (int i = 0; i < _itemList.Count; i++)
+            {
+                if (_itemList[i].Id == itemId)
+                {
+                    _equippedIndex = i;
+                    return;
+                }
+            }
+        }
     }
 }

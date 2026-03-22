@@ -42,6 +42,14 @@ namespace TheGame.Systems
         }
 
         /// <summary>
+        /// Returns a copy of all flags for serialization.
+        /// </summary>
+        public static Dictionary<string, bool> GetAllFlags()
+        {
+            return new Dictionary<string, bool>(_flagState);
+        }
+
+        /// <summary>
         /// Resets the entire world state (useful for New Game or full resets).
         /// </summary>
         public static void Clear()
