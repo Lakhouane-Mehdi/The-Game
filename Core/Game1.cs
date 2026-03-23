@@ -19,6 +19,7 @@ namespace TheGame.Core
 {
     public enum GameState
     {
+        Intro,
         Menu,
         Overworld,
         Interior,
@@ -27,7 +28,8 @@ namespace TheGame.Core
         Inventory,
         GameOver,
         Shop,
-        Blacksmith
+        Blacksmith,
+        Credits
     }
 
     public class Game1 : Game
@@ -43,7 +45,7 @@ namespace TheGame.Core
         public static Texture2D PixelTexture { get; private set; }
 
         // ── State Management ──
-        public GameState CurrentState { get; private set; } = GameState.Menu;
+        public GameState CurrentState { get; private set; } = GameState.Intro;
         private GameState _stateBeforePause;
 
         // ── State Handlers ──
@@ -56,6 +58,8 @@ namespace TheGame.Core
         private States.GameOverState _gameOverState;
         private States.ShopState _shopState;
         private States.BlacksmithState _blacksmithState;
+        private States.IntroState _introState;
+        private States.CreditsState _creditsState;
 
         // ── Shared Player (persists across states) ──
         public Player SharedPlayer { get; private set; }
@@ -127,6 +131,8 @@ namespace TheGame.Core
             _gameOverState = new States.GameOverState(this, Content);
             _shopState = new States.ShopState(this, Content);
             _blacksmithState = new States.BlacksmithState(this, Content);
+            _introState = new States.IntroState(this, Content);
+            _creditsState = new States.CreditsState(this, Content);
         }
 
         // ── Public API for state transitions ──
@@ -228,6 +234,8 @@ namespace TheGame.Core
             {
                 if (CurrentState == GameState.Menu)
                     Exit();
+                else if (CurrentState == GameState.Intro)
+                    ChangeState(GameState.Menu);
                 else if (CurrentState == GameState.Overworld ||
                          CurrentState == GameState.Dungeon ||
                          CurrentState == GameState.Interior)
@@ -239,6 +247,9 @@ namespace TheGame.Core
             {
                 switch (CurrentState)
                 {
+                    case GameState.Intro:
+                        _introState.Update(gameTime);
+                        break;
                     case GameState.Menu:
                         _menuState.Update(gameTime);
                         break;
@@ -266,6 +277,9 @@ namespace TheGame.Core
                     case GameState.Blacksmith:
                         _blacksmithState.Update(gameTime);
                         break;
+                    case GameState.Credits:
+                        _creditsState.Update(gameTime);
+                        break;
                 }
             }
 
@@ -285,6 +299,9 @@ namespace TheGame.Core
 
             switch (CurrentState)
             {
+                case GameState.Intro:
+                    _introState.Draw(_spriteBatch);
+                    break;
                 case GameState.Menu:
                     _menuState.Draw(_spriteBatch);
                     break;
@@ -347,6 +364,9 @@ namespace TheGame.Core
                         case GameState.Overworld: _overworldState.Draw(_spriteBatch); break;
                     }
                     _blacksmithState.Draw(_spriteBatch);
+                    break;
+                case GameState.Credits:
+                    _creditsState.Draw(_spriteBatch);
                     break;
             }
 
