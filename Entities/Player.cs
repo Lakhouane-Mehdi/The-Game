@@ -117,12 +117,14 @@ namespace TheGame.Entities
                 [FacingDirection.Left]  = SetupLayer(idleBody, idlePants, idleShoes, idleShirt, idleHair, 6, 6, 0.15f),
             };
 
+            // Attack sheet is 4 cols × 9 rows: 3 rows per direction (12 frames each)
+            // Down = rows 0-2 (index 0), Right = rows 3-5 (index 12), Up = rows 6-8 (index 24)
             _attackAnimsLayers = new Dictionary<FacingDirection, SpriteAnimation[]>
             {
                 [FacingDirection.Down]  = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 0, 0.08f, false),
-                [FacingDirection.Right] = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 4, 0.08f, false),
-                [FacingDirection.Up]    = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 8, 0.08f, false),
-                [FacingDirection.Left]  = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 4, 0.08f, false),
+                [FacingDirection.Right] = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 12, 0.08f, false),
+                [FacingDirection.Up]    = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 24, 0.08f, false),
+                [FacingDirection.Left]  = SetupLayer(attackBody, attackPants, attackShoes, attackShirt, attackHair, 4, 12, 0.08f, false),
             };
 
             _sm.ForceState("idle");

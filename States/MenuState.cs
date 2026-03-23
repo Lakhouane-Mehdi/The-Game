@@ -26,6 +26,7 @@ namespace TheGame.States
         private KeyboardState _prevKb = Keyboard.GetState();
         private int _menuIndex;
         private bool _hasSave;
+        private bool _showCredits;
 
         public MenuState(Game1 game, ContentManager content)
             : base(game, content)
@@ -56,18 +57,29 @@ namespace TheGame.States
             // Check for save
             _hasSave = SaveSystem.HasSave();
 
+            // Credits screen
+            if (_showCredits)
+            {
+                if ((kb.IsKeyDown(Keys.Escape) && _prevKb.IsKeyUp(Keys.Escape)) ||
+                    (kb.IsKeyDown(Keys.Enter) && _prevKb.IsKeyUp(Keys.Enter)))
+                    _showCredits = false;
+                _prevKb = kb;
+                return;
+            }
+
             // Navigate menu
+            int maxIndex = _hasSave ? 2 : 1; // NEW GAME, [CONTINUE], CREDITS
             if ((kb.IsKeyDown(Keys.W) && _prevKb.IsKeyUp(Keys.W)) ||
                 (kb.IsKeyDown(Keys.Up) && _prevKb.IsKeyUp(Keys.Up)))
             {
                 _menuIndex--;
-                if (_menuIndex < 0) _menuIndex = _hasSave ? 1 : 0;
+                if (_menuIndex < 0) _menuIndex = maxIndex;
             }
             if ((kb.IsKeyDown(Keys.S) && _prevKb.IsKeyUp(Keys.S)) ||
                 (kb.IsKeyDown(Keys.Down) && _prevKb.IsKeyUp(Keys.Down)))
             {
                 _menuIndex++;
-                if (_menuIndex > (_hasSave ? 1 : 0)) _menuIndex = 0;
+                if (_menuIndex > maxIndex) _menuIndex = 0;
             }
 
             // Confirm
@@ -75,18 +87,20 @@ namespace TheGame.States
             {
                 if (_menuIndex == 0)
                 {
-                    // New Game
                     GameRef.ChangeState(GameState.Overworld);
                 }
                 else if (_menuIndex == 1 && _hasSave)
                 {
-                    // Continue — load save
                     var data = SaveSystem.Load();
                     if (data != null)
                     {
                         SaveSystem.ApplySave(GameRef, GameRef.SharedPlayer, data);
                         GameRef.ChangeState(GameState.Overworld);
                     }
+                }
+                else if ((_hasSave && _menuIndex == 2) || (!_hasSave && _menuIndex == 1))
+                {
+                    _showCredits = true;
                 }
             }
 
@@ -138,9 +152,11 @@ namespace TheGame.States
             spriteBatch.Draw(px, new Rectangle(boxX, titleY, boxW, boxH),
                 new Color(10, 20, 10) * 0.95f);
 
-            // ── Title text: "THE GAME" ──
-            PixelFont.DrawCenteredWithShadow(spriteBatch, "THE GAME", titleY + 12,
-                Color.Gold, scale: 5);
+            // ── Title text ──
+            PixelFont.DrawCenteredWithShadow(spriteBatch, "THE FADING RESONANCE", titleY + 8,
+                Color.Gold, scale: 3);
+            PixelFont.DrawCentered(spriteBatch, "THE GAME", titleY + 35,
+                new Color(200, 180, 120), scale: 2);
 
             // ── Decorative line under title ──
             int lineY = titleY + boxH + 15;
@@ -153,9 +169,15 @@ namespace TheGame.States
             PixelFont.DrawCenteredWithShadow(spriteBatch, "A ZELDA-LIKE ADVENTURE", lineY + 20,
                 new Color(150, 200, 150), scale: 2);
 
+            // ── Made by ──
+            PixelFont.DrawCentered(spriteBatch, "MADE BY MEHDI LAKHOUANE", lineY + 38,
+                new Color(100, 140, 100), scale: 1);
+
             // ── Menu options ──
-            int menuY = 270;
-            string[] options = _hasSave ? new[] { "NEW GAME", "CONTINUE" } : new[] { "NEW GAME" };
+            int menuY = 280;
+            string[] options = _hasSave
+                ? new[] { "NEW GAME", "CONTINUE", "CREDITS" }
+                : new[] { "NEW GAME", "CREDITS" };
             for (int i = 0; i < options.Length; i++)
             {
                 bool selected = (i == _menuIndex);
@@ -173,12 +195,57 @@ namespace TheGame.States
             }
 
             // ── Controls hint ──
-            int hintY = 380;
+            int hintY = 400;
             Color hintColor = new Color(120, 140, 120);
 
             PixelFont.DrawCentered(spriteBatch, "WASD - MOVE  SPACE - ATTACK", hintY, hintColor, scale: 1);
             hintY += 16;
             PixelFont.DrawCentered(spriteBatch, "X - USE ITEM  Q/E - CYCLE  I - INVENTORY", hintY, hintColor, scale: 1);
+
+            // ── Credits overlay ──
+            if (_showCredits)
+            {
+                spriteBatch.Draw(px, new Rectangle(0, 0, Game1.ScreenWidth, Game1.ScreenHeight),
+                    Color.Black * 0.85f);
+
+                int cy = 40;
+                PixelFont.DrawCenteredWithShadow(spriteBatch, "CREDITS", cy, Color.Gold, 4);
+                cy += 50;
+                PixelFont.DrawCentered(spriteBatch, "GAME DESIGN AND PROGRAMMING", cy, Color.White, 2);
+                cy += 22;
+                PixelFont.DrawCentered(spriteBatch, "MEHDI LAKHOUANE", cy, Color.Gold, 2);
+                cy += 40;
+
+                PixelFont.DrawCentered(spriteBatch, "ART ASSETS", cy, Color.White, 2);
+                cy += 22;
+                PixelFont.DrawCentered(spriteBatch, "CUTE FANTASY PLAYER - SPROUT LANDS ASSET PACK", cy, new Color(180, 200, 180), 1);
+                cy += 16;
+                PixelFont.DrawCentered(spriteBatch, "TREES, BUSHES AND NATURE - SPROUT LANDS", cy, new Color(180, 200, 180), 1);
+                cy += 16;
+                PixelFont.DrawCentered(spriteBatch, "MUSHROOMS, FLOWERS, STONES - SPROUT LANDS", cy, new Color(180, 200, 180), 1);
+                cy += 16;
+                PixelFont.DrawCentered(spriteBatch, "BUILDINGS AND FURNITURE - SPROUT LANDS", cy, new Color(180, 200, 180), 1);
+                cy += 16;
+                PixelFont.DrawCentered(spriteBatch, "MONSTER SPRITES (BAMBOO, RACCOON, SPIRIT, SQUID)", cy, new Color(180, 200, 180), 1);
+                cy += 16;
+                PixelFont.DrawCentered(spriteBatch, "TILESET AND GROUND TILES - FREE PIXEL ART", cy, new Color(180, 200, 180), 1);
+                cy += 16;
+                PixelFont.DrawCentered(spriteBatch, "WOODS TILESET - FREE PIXEL 16 WOODS", cy, new Color(180, 200, 180), 1);
+                cy += 30;
+
+                PixelFont.DrawCentered(spriteBatch, "ENGINE", cy, Color.White, 2);
+                cy += 22;
+                PixelFont.DrawCentered(spriteBatch, "MONOGAME FRAMEWORK", cy, new Color(180, 200, 180), 1);
+                cy += 30;
+
+                PixelFont.DrawCentered(spriteBatch, "SPECIAL THANKS", cy, Color.White, 2);
+                cy += 22;
+                PixelFont.DrawCentered(spriteBatch, "ALL THE OPEN-SOURCE PIXEL ART CREATORS", cy, new Color(180, 200, 180), 1);
+                cy += 30;
+
+                if (_showPrompt)
+                    PixelFont.DrawCentered(spriteBatch, "PRESS ENTER OR ESC TO RETURN", cy, Color.Gray, 1);
+            }
         }
     }
 }

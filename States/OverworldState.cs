@@ -1285,7 +1285,21 @@ namespace TheGame.States
         private List<SolidRect> GetCurrentWalls()
         {
             string key = $"{_camera.RoomX},{_camera.RoomY}";
-            return _roomWalls.ContainsKey(key) ? _roomWalls[key] : new List<SolidRect>();
+            var walls = _roomWalls.ContainsKey(key)
+                ? new List<SolidRect>(_roomWalls[key])
+                : new List<SolidRect>();
+
+            // Add NPC collision boxes as walls
+            foreach (var re in _interactables)
+            {
+                if (!re.IsActive) continue;
+                if (re.Entity is NPC npc)
+                {
+                    var cb = npc.CollisionBox;
+                    walls.Add(new SolidRect(cb.X, cb.Y, cb.Width, cb.Height));
+                }
+            }
+            return walls;
         }
 
         // ──────────────────────────────────────────────
@@ -1475,7 +1489,7 @@ namespace TheGame.States
                 _pickupMessageTimer = 1.5f;
 
                 // Check quest flags — raccoon defeated (room 1,1)
-                if (_camera.RoomX == 1 && _camera.RoomY == 1 && aliveEnemiesAfter == 0)
+                if (_camera.RoomX == 4 && _camera.RoomY == 3 && aliveEnemiesAfter == 0)
                     GameRef.QuestFlags.Add("raccoon_defeated");
             }
 

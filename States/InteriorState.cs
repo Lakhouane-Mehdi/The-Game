@@ -355,7 +355,18 @@ namespace TheGame.States
 
             // ── Player ──
             _player.Update(gameTime);
-            CollisionSystem.MoveAndResolve(_player, _walls, dt);
+
+            // Build walls list including NPC collision
+            var allWalls = new List<SolidRect>(_walls);
+            foreach (var npc in _interactables)
+            {
+                if (npc is NPC n)
+                {
+                    var cb = n.CollisionBox;
+                    allWalls.Add(new SolidRect(cb.X, cb.Y, cb.Width, cb.Height));
+                }
+            }
+            CollisionSystem.MoveAndResolve(_player, allWalls, dt);
 
             // ── Clamp player to interior bounds ──
             if (_player.Position.X < 0) _player.Position = new Vector2(0, _player.Position.Y);
