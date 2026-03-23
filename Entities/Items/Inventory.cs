@@ -205,6 +205,30 @@ namespace TheGame.Entities.Items
         }
 
         /// <summary>
+        /// Removes a specific quantity of an item by ID. Returns true if successful.
+        /// </summary>
+        public bool RemoveItem(string itemId, int amount = 1)
+        {
+            Item target = null;
+            foreach (var kv in _items)
+            {
+                if (kv.Key.Id == itemId) { target = kv.Key; break; }
+            }
+            if (target == null || _items[target] < amount) return false;
+
+            _items[target] -= amount;
+            if (_items[target] <= 0)
+            {
+                _items.Remove(target);
+                int idx = _itemList.IndexOf(target);
+                _itemList.Remove(target);
+                if (_equippedIndex >= _itemList.Count)
+                    _equippedIndex = _itemList.Count - 1;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Consumes 1 unit. Returns false if out.
         /// Melee and Key items are never consumed.
         /// </summary>

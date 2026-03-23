@@ -181,6 +181,17 @@ namespace TheGame.States
                             {
                                 new() { Speaker = name, Text = text }
                             });
+
+                        // Check for special action (shop, blacksmith)
+                        if (n.TryGetProperty("action", out var actionProp))
+                        {
+                            string action = actionProp.GetString();
+                            if (action == "shop")
+                                npc.OnInteracted = () => GameRef.OpenShop();
+                            else if (action == "blacksmith")
+                                npc.OnInteracted = () => GameRef.OpenBlacksmith();
+                        }
+
                         _interactables.Add(npc);
                     }
                 }

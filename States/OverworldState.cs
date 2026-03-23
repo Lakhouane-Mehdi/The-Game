@@ -152,22 +152,27 @@ namespace TheGame.States
         // ── Room floor colors (fallback for rooms without tile textures) ──
         private static Color GetRoomColor(int rx, int ry)
         {
-            // 3 biome bands: rows 0-1 = Peaks, rows 2-3 = Woods, row 4 = Outskirts
-            if (ry <= 1) return new Color(100 + rx * 3, 95 + rx * 2, 80 + rx * 2);     // grey/rocky
-            if (ry <= 3) return new Color(70 + rx * 4, 130 + rx * 3, 50 + rx * 2);     // green/forest
-            return new Color(55 + rx * 3, 65 + rx * 2, 45 + rx * 2);                    // sandy/dark
+            // 5 biome bands for 10x7 world:
+            // rows 0-1 = Resonant Peaks (grey/rocky)
+            // rows 2-3 = Echoing Woods (green/forest)
+            // row 4    = Village zone (warm earth)
+            // rows 5-6 = Silent Outskirts (dark/sandy)
+            if (ry <= 1) return new Color(100 + rx * 3, 95 + rx * 2, 80 + rx * 2);
+            if (ry <= 3) return new Color(70 + rx * 4, 130 + rx * 3, 50 + rx * 2);
+            if (ry == 4) return new Color(120 + rx * 2, 115 + rx * 2, 75 + rx * 2);
+            return new Color(55 + rx * 3, 65 + rx * 2, 45 + rx * 2);
         }
 
-        // ── World size: 7x5 rooms ──
-        private const int WorldRoomsX = 7;
-        private const int WorldRoomsY = 5;
+        // ── World size: 10x7 rooms ──
+        private const int WorldRoomsX = 10;
+        private const int WorldRoomsY = 7;
 
         public OverworldState(Game1 game, ContentManager content)
             : base(game, content)
         {
             // ── Camera ──
             _camera = new Camera(Game1.ScreenWidth, Game1.ScreenHeight, WorldRoomsX, WorldRoomsY);
-            _camera.SnapToRoom(3, 2); // start in the center room
+            _camera.SnapToRoom(5, 3); // start in the center room
 
             // ── Room Manager ──
             _rooms = new RoomManager(_camera);
@@ -422,17 +427,19 @@ namespace TheGame.States
                     int oy = ry * h;
                     string key = $"{rx},{ry}";
                     var decs = new List<Decoration>();
-                    int biome = ry <= 1 ? 0 : ry <= 3 ? 1 : 2;
+                    // 0=peaks, 1=woods, 2=village, 3=outskirts
+                    int biome = ry <= 1 ? 0 : ry <= 3 ? 1 : ry == 4 ? 2 : 3;
 
                     // Number of decorations per room varies by biome
-                    int treeCount = biome == 1 ? rng.Next(4, 8) : rng.Next(1, 4);
+                    int treeCount = biome == 1 ? rng.Next(4, 8) : biome == 2 ? rng.Next(1, 3) : rng.Next(1, 4);
                     int rockCount = biome == 0 ? rng.Next(3, 7) : rng.Next(1, 3);
-                    int flowerCount = biome == 1 ? rng.Next(3, 8) : rng.Next(0, 3);
-                    int bushCount = rng.Next(2, 5);
-                    int grassCount = biome == 1 ? rng.Next(4, 10) : rng.Next(1, 4);
+                    int flowerCount = biome == 1 ? rng.Next(3, 8) : biome == 2 ? rng.Next(4, 8) : rng.Next(0, 3);
+                    int bushCount = biome == 2 ? rng.Next(3, 6) : rng.Next(2, 5);
+                    int grassCount = biome == 1 ? rng.Next(4, 10) : biome == 2 ? rng.Next(5, 12) : rng.Next(1, 4);
 
                     // Skip starting room center area for decorations
-                    bool isStartRoom = (rx == 3 && ry == 2);
+                    bool isStartRoom = (rx == 5 && ry == 3);
+                    bool isVillage = (ry == 4 && rx >= 4 && rx <= 8);
 
                     // ── Trees (standalone complete sprites) ──
                     if (standaloneTrees.Count > 0)
@@ -442,6 +449,9 @@ namespace TheGame.States
                             float px = ox + 40 + rng.Next(w - 80);
                             float py = oy + 40 + rng.Next(h - 80);
                             if (isStartRoom && px > ox + 200 && px < ox + 600 && py > oy + 100 && py < oy + 400)
+                                continue;
+                            // Skip tree if it overlaps building areas in village
+                            if (isVillage && py < oy + 220)
                                 continue;
 
                             // Pick a tree variant; occasionally use big oak for variety
@@ -504,20 +514,33 @@ namespace TheGame.States
                         }
                     }
 
-                    // ── Rocks ──
+                    // ── Rocks (with collision for large ones) ──
                     if (_rocksSheet != null)
                     {
                         for (int i = 0; i < rockCount; i++)
                         {
                             var src = rockSources[rng.Next(rockSources.Length)];
                             float rockScale = src.Width >= 32 ? 1.5f : 2f;
+                            float rpx = ox + 30 + rng.Next(w - 60);
+                            float rpy = oy + 30 + rng.Next(h - 60);
+                            if (isVillage && rpx > ox + 250 && rpx < ox + 550 && rpy < oy + 200)
+                                continue; // skip rocks overlapping building areas
                             decs.Add(new Decoration
                             {
                                 Source = src,
-                                Position = new Vector2(ox + 30 + rng.Next(w - 60), oy + 30 + rng.Next(h - 60)),
+                                Position = new Vector2(rpx, rpy),
                                 Sheet = _rocksSheet,
                                 Scale = rockScale
                             });
+                            // Add collision for large rocks (32x32 source)
+                            if (src.Width >= 32)
+                            {
+                                int drawnW = (int)(src.Width * rockScale);
+                                int drawnH = (int)(src.Height * rockScale);
+                                AddWall(rx, ry, new SolidRect(
+                                    (int)rpx + 4, (int)rpy + drawnH / 3,
+                                    drawnW - 8, drawnH * 2 / 3));
+                            }
                         }
 
                         // Flowers (mostly in woods biome)
@@ -554,12 +577,12 @@ namespace TheGame.States
                 }
             }
 
-            // ── Hand-placed decorations for starting room (3,2) ──
+            // ── Hand-placed decorations for starting room (5,3) ──
             int sw = Game1.ScreenWidth;
             int sh = Game1.ScreenHeight;
-            int sox = 3 * sw;
-            int soy = 2 * sh;
-            string startKey = "3,2";
+            int sox = 5 * sw;
+            int soy = 3 * sh;
+            string startKey = "5,3";
             if (!_roomDecorations.ContainsKey(startKey))
                 _roomDecorations[startKey] = new List<Decoration>();
             var startDecs = _roomDecorations[startKey];
@@ -666,12 +689,12 @@ namespace TheGame.States
                 {
                     int ox = rx * w;
                     int oy = ry * h;
-                    int biome = ry <= 1 ? 0 : ry <= 3 ? 1 : 2;
+                    int biome = ry <= 1 ? 0 : ry <= 3 ? 1 : ry == 4 ? 2 : 3;
 
                     // Scatter collectibles based on biome
                     int fruitCount = biome == 1 ? rng.Next(1, 4) : rng.Next(0, 2);
                     int stoneCount = biome == 0 ? rng.Next(2, 5) : rng.Next(0, 3);
-                    int flowerCount2 = biome == 1 ? rng.Next(1, 3) : 0;
+                    int flowerCount2 = (biome == 1 || biome == 2) ? rng.Next(1, 3) : 0;
                     int mushroomCount = biome == 1 ? rng.Next(0, 3) : 0;
                     int woodCount = rng.Next(0, 2);
 
@@ -794,27 +817,27 @@ namespace TheGame.States
             }
 
             // ── Add obstacles in specific rooms ──
-            // Layout: 7x5 grid. Starting room is (3,2).
+            // Layout: 10x7 grid. Starting room is (5,3).
 
-            // Room (3,2) — starting meadow: a few rocks
-            AddWall(3, 2, new SolidRect(3 * w + 350, 2 * h + 200, 48, 48));
-            AddWall(3, 2, new SolidRect(3 * w + 150, 2 * h + 350, 48, 48));
+            // Room (5,3) — starting meadow: a few rocks
+            AddWall(5, 3, new SolidRect(5 * w + 350, 3 * h + 200, 48, 48));
+            AddWall(5, 3, new SolidRect(5 * w + 150, 3 * h + 350, 48, 48));
 
-            // Room (2,2) — raccoon den: arena walls
-            AddWall(2, 2, new SolidRect(2 * w + 200, 2 * h + 16, 32, 200));
-            AddWall(2, 2, new SolidRect(2 * w + 200, 2 * h + 280, 32, 184));
-            AddWall(2, 2, new SolidRect(2 * w + 550, 2 * h + 16, 32, 200));
-            AddWall(2, 2, new SolidRect(2 * w + 550, 2 * h + 280, 32, 184));
+            // Room (4,3) — raccoon den: arena walls
+            AddWall(4, 3, new SolidRect(4 * w + 200, 3 * h + 16, 32, 200));
+            AddWall(4, 3, new SolidRect(4 * w + 200, 3 * h + 280, 32, 184));
+            AddWall(4, 3, new SolidRect(4 * w + 550, 3 * h + 16, 32, 200));
+            AddWall(4, 3, new SolidRect(4 * w + 550, 3 * h + 280, 32, 184));
 
-            // Room (4,2) — east woods: obstacle course
-            AddWall(4, 2, new SolidRect(4 * w + 200, 2 * h + 150, 48, 48));
-            AddWall(4, 2, new SolidRect(4 * w + 400, 2 * h + 250, 48, 48));
-            AddWall(4, 2, new SolidRect(4 * w + 600, 2 * h + 150, 48, 48));
+            // Room (7,3) — east woods: obstacle course
+            AddWall(7, 3, new SolidRect(7 * w + 200, 3 * h + 150, 48, 48));
+            AddWall(7, 3, new SolidRect(7 * w + 400, 3 * h + 250, 48, 48));
+            AddWall(7, 3, new SolidRect(7 * w + 600, 3 * h + 150, 48, 48));
 
-            // Room (4,3) — dungeon gate: pressure plate door
-            var doorWall = new SolidRect(4 * w + 370, 3 * h + 200, 60, 16);
+            // Room (7,2) — dungeon gate: pressure plate door
+            var doorWall = new SolidRect(7 * w + 370, 2 * h + 200, 60, 16);
             _namedDoors["south_door"] = doorWall;
-            AddWall(4, 3, doorWall);
+            AddWall(7, 2, doorWall);
         }
 
         private void AddWall(int rx, int ry, SolidRect wall)
@@ -833,81 +856,73 @@ namespace TheGame.States
             int w = Game1.ScreenWidth;
             int h = Game1.ScreenHeight;
 
-            // Room [0,0] (The Village) - Progressive Start
-            if (_player != null && GameRef.QuestFlags.Contains("Resonance_Awakened"))
+            // Helper to spawn a bamboo enemy
+            void AddBamboo(int rx, int ry, float localX, float localY)
             {
-                var v1 = new Bamboo(new Vector2(100, 100));
-                v1.LoadContent();
-                _rooms.AddEnemy(v1, 0, 0);
+                var b = new Bamboo(new Vector2(rx * w + localX, ry * h + localY));
+                b.LoadContent();
+                _rooms.AddEnemy(b, rx, ry);
             }
 
-            // Room (3,2) — starting meadow: no enemies (safe zone)
+            // Room (5,3) — starting meadow: no enemies (safe zone)
+            // Village zone row 4: no enemies (safe zone)
 
-            // Room (2,2) — raccoon den: boss fight
-            var raccoon = new Raccoon(new Vector2(2 * w + 350, 2 * h + 240));
+            // Room (4,3) — raccoon den: boss fight
+            var raccoon = new Raccoon(new Vector2(4 * w + 350, 3 * h + 240));
             raccoon.LoadContent();
-            _rooms.AddEnemy(raccoon, 2, 2);
+            _rooms.AddEnemy(raccoon, 4, 3);
 
-            // Room (4,2) — east woods: 3 bamboos
+            // Room (7,3) — east woods: 3 bamboos
             for (int i = 0; i < 3; i++)
-            {
-                var b = new Bamboo(new Vector2(4 * w + 150 + i * 200, 2 * h + 200 + i * 50));
-                b.LoadContent();
-                _rooms.AddEnemy(b, 4, 2);
-            }
+                AddBamboo(7, 3, 150 + i * 200, 200 + i * 50);
 
-            // Room (4,3) — dungeon gate: bamboo guards
-            var g1 = new Bamboo(new Vector2(4 * w + 250, 3 * h + 150));
-            g1.LoadContent();
-            _rooms.AddEnemy(g1, 4, 3);
+            // Room (7,2) — dungeon gate: bamboo guards
+            AddBamboo(7, 2, 250, 150);
+            AddBamboo(7, 2, 550, 300);
 
-            var g2 = new Bamboo(new Vector2(4 * w + 550, 3 * h + 300));
-            g2.LoadContent();
-            _rooms.AddEnemy(g2, 4, 3);
+            // Room (2,3) — deep forest: 2 bamboos
+            AddBamboo(2, 3, 200, 180);
+            AddBamboo(2, 3, 600, 300);
 
-            // Room (1,2) — deep forest: 2 bamboos
-            var f1 = new Bamboo(new Vector2(w + 200, 2 * h + 180));
-            f1.LoadContent();
-            _rooms.AddEnemy(f1, 1, 2);
+            // Room (8,3) — forest edge: 2 bamboos
+            AddBamboo(8, 3, 200, 200);
+            AddBamboo(8, 3, 500, 350);
 
-            var f2 = new Bamboo(new Vector2(w + 600, 2 * h + 300));
-            f2.LoadContent();
-            _rooms.AddEnemy(f2, 1, 2);
+            // Room (5,1) — highland border: 2 bamboos
+            AddBamboo(5, 1, 300, 200);
+            AddBamboo(5, 1, 500, 300);
 
-            // Room (5,2) — forest edge: 2 bamboos
-            var e1 = new Bamboo(new Vector2(5 * w + 200, 2 * h + 200));
-            e1.LoadContent();
-            _rooms.AddEnemy(e1, 5, 2);
+            // Room (3,2) — west woods: 2 bamboos
+            AddBamboo(3, 2, 200, 180);
+            AddBamboo(3, 2, 600, 300);
 
-            var e2 = new Bamboo(new Vector2(5 * w + 500, 2 * h + 350));
-            e2.LoadContent();
-            _rooms.AddEnemy(e2, 5, 2);
-
-            // Room (3,1) — highland border: 2 bamboos
-            var h1 = new Bamboo(new Vector2(3 * w + 300, h + 200));
-            h1.LoadContent();
-            _rooms.AddEnemy(h1, 3, 1);
-
-            var h2 = new Bamboo(new Vector2(3 * w + 500, h + 300));
-            h2.LoadContent();
-            _rooms.AddEnemy(h2, 3, 1);
-
-            // Room (3,3) — south woods: 2 bamboos
-            var s1 = new Bamboo(new Vector2(3 * w + 200, 3 * h + 180));
-            s1.LoadContent();
-            _rooms.AddEnemy(s1, 3, 3);
-
-            var s2 = new Bamboo(new Vector2(3 * w + 600, 3 * h + 300));
-            s2.LoadContent();
-            _rooms.AddEnemy(s2, 3, 3);
-
-            // Room (5,3) — far east outskirts: 3 bamboos
+            // Room (6,2) — north forest: 3 bamboos
             for (int i = 0; i < 3; i++)
-            {
-                var b = new Bamboo(new Vector2(5 * w + 100 + i * 250, 3 * h + 150 + i * 60));
-                b.LoadContent();
-                _rooms.AddEnemy(b, 5, 3);
-            }
+                AddBamboo(6, 2, 100 + i * 250, 150 + i * 60);
+
+            // Room (8,2) — east mountains: 2 bamboos
+            AddBamboo(8, 2, 200, 200);
+            AddBamboo(8, 2, 500, 350);
+
+            // Room (3,5) — silent outskirts: 3 bamboos
+            for (int i = 0; i < 3; i++)
+                AddBamboo(3, 5, 150 + i * 200, 180 + i * 50);
+
+            // Room (5,5) — southern path: 2 bamboos
+            AddBamboo(5, 5, 300, 200);
+            AddBamboo(5, 5, 600, 350);
+
+            // Room (7,5) — eastern outskirts: 2 bamboos
+            AddBamboo(7, 5, 200, 200);
+            AddBamboo(7, 5, 500, 300);
+
+            // Room (4,6) — deep south: 3 bamboos
+            for (int i = 0; i < 3; i++)
+                AddBamboo(4, 6, 150 + i * 200, 150 + i * 80);
+
+            // Room (6,6) — far south: 3 bamboos
+            for (int i = 0; i < 3; i++)
+                AddBamboo(6, 6, 100 + i * 250, 180 + i * 40);
         }
 
         private void SpawnBreakables()
@@ -918,32 +933,32 @@ namespace TheGame.States
             Texture2D potTex = _potSprite ?? _grassSprite;
             Texture2D crateTex = _crateSprite ?? potTex;
 
-            // Room (3,2) — starting meadow: pots with hearts
+            // Room (5,3) — starting meadow: pots with hearts
             if (potTex != null)
             {
-                if (!WorldStateManager.GetFlag("Room_3_2_Pot_0")) _rooms.AddBreakable(new Breakable(new Vector2(3 * w + 100, 2 * h + 100), potTex, DropType.Heart) { UniqueId = "Room_3_2_Pot_0" }, 3, 2);
-                if (!WorldStateManager.GetFlag("Room_3_2_Pot_1")) _rooms.AddBreakable(new Breakable(new Vector2(3 * w + 680, 2 * h + 100), potTex, DropType.Heart) { UniqueId = "Room_3_2_Pot_1" }, 3, 2);
+                if (!WorldStateManager.GetFlag("Room_5_3_Pot_0")) _rooms.AddBreakable(new Breakable(new Vector2(5 * w + 100, 3 * h + 100), potTex, DropType.Heart) { UniqueId = "Room_5_3_Pot_0" }, 5, 3);
+                if (!WorldStateManager.GetFlag("Room_5_3_Pot_1")) _rooms.AddBreakable(new Breakable(new Vector2(5 * w + 680, 3 * h + 100), potTex, DropType.Heart) { UniqueId = "Room_5_3_Pot_1" }, 5, 3);
             }
 
-            // Room (2,2) — raccoon den: crates with ammo
+            // Room (4,3) — raccoon den: crates with ammo
             if (crateTex != null)
             {
-                if (!WorldStateManager.GetFlag("Room_2_2_Crate_0")) _rooms.AddBreakable(new Breakable(new Vector2(2 * w + 100, 2 * h + 350), crateTex, DropType.Ammo) { UniqueId = "Room_2_2_Crate_0" }, 2, 2);
-                if (!WorldStateManager.GetFlag("Room_2_2_Crate_1")) _rooms.AddBreakable(new Breakable(new Vector2(2 * w + 650, 2 * h + 200), crateTex, DropType.Ammo) { UniqueId = "Room_2_2_Crate_1" }, 2, 2);
+                if (!WorldStateManager.GetFlag("Room_4_3_Crate_0")) _rooms.AddBreakable(new Breakable(new Vector2(4 * w + 100, 3 * h + 350), crateTex, DropType.Ammo) { UniqueId = "Room_4_3_Crate_0" }, 4, 3);
+                if (!WorldStateManager.GetFlag("Room_4_3_Crate_1")) _rooms.AddBreakable(new Breakable(new Vector2(4 * w + 650, 3 * h + 200), crateTex, DropType.Ammo) { UniqueId = "Room_4_3_Crate_1" }, 4, 3);
             }
 
-            // Room (4,2) — east woods: grass
+            // Room (7,3) — east woods: grass
             if (_grassSprite != null)
             {
-                if (!WorldStateManager.GetFlag("Room_4_2_Grass_0")) _rooms.AddBreakable(new Breakable(new Vector2(4 * w + 300, 2 * h + 350), _grassSprite) { UniqueId = "Room_4_2_Grass_0" }, 4, 2);
-                if (!WorldStateManager.GetFlag("Room_4_2_Grass_1")) _rooms.AddBreakable(new Breakable(new Vector2(4 * w + 500, 2 * h + 350), _grassSprite) { UniqueId = "Room_4_2_Grass_1" }, 4, 2);
+                if (!WorldStateManager.GetFlag("Room_7_3_Grass_0")) _rooms.AddBreakable(new Breakable(new Vector2(7 * w + 300, 3 * h + 350), _grassSprite) { UniqueId = "Room_7_3_Grass_0" }, 7, 3);
+                if (!WorldStateManager.GetFlag("Room_7_3_Grass_1")) _rooms.AddBreakable(new Breakable(new Vector2(7 * w + 500, 3 * h + 350), _grassSprite) { UniqueId = "Room_7_3_Grass_1" }, 7, 3);
             }
 
-            // Room (4,3) — dungeon gate: pots
+            // Room (7,2) — dungeon gate: pots
             if (potTex != null)
             {
-                if (!WorldStateManager.GetFlag("Room_4_3_Pot_0")) _rooms.AddBreakable(new Breakable(new Vector2(4 * w + 300, 3 * h + 100), potTex, DropType.Heart) { UniqueId = "Room_4_3_Pot_0" }, 4, 3);
-                if (!WorldStateManager.GetFlag("Room_4_3_Pot_1")) _rooms.AddBreakable(new Breakable(new Vector2(4 * w + 500, 3 * h + 100), potTex, DropType.None) { UniqueId = "Room_4_3_Pot_1" }, 4, 3);
+                if (!WorldStateManager.GetFlag("Room_7_2_Pot_0")) _rooms.AddBreakable(new Breakable(new Vector2(7 * w + 300, 2 * h + 100), potTex, DropType.Heart) { UniqueId = "Room_7_2_Pot_0" }, 7, 2);
+                if (!WorldStateManager.GetFlag("Room_7_2_Pot_1")) _rooms.AddBreakable(new Breakable(new Vector2(7 * w + 500, 2 * h + 100), potTex, DropType.None) { UniqueId = "Room_7_2_Pot_1" }, 7, 2);
             }
         }
 
@@ -952,26 +967,26 @@ namespace TheGame.States
             int w = Game1.ScreenWidth;
             int h = Game1.ScreenHeight;
 
-            // Room (4,3) — dungeon gate: pressure plate opens the gate door
+            // Room (7,2) — dungeon gate: pressure plate opens the gate door
             var plate = new PressurePlate(
-                new Vector2(4 * w + 400, 3 * h + 350), TriggerMode.Toggle);
+                new Vector2(7 * w + 400, 2 * h + 350), TriggerMode.Toggle);
 
             plate.OnStateChanged = (activated) =>
             {
                 if (_namedDoors.TryGetValue("south_door", out SolidRect door))
                 {
-                    string key = "4,3";
+                    string key = "7,2";
                     if (activated)
-                        _roomWalls[key].Remove(door);  // open door
+                        _roomWalls[key].Remove(door);
                     else
                     {
                         if (!_roomWalls[key].Contains(door))
-                            _roomWalls[key].Add(door);  // close door
+                            _roomWalls[key].Add(door);
                     }
                 }
             };
 
-            _rooms.AddTrigger(plate, 4, 3);
+            _rooms.AddTrigger(plate, 7, 2);
         }
 
         // ──────────────────────────────────────────────
@@ -986,106 +1001,154 @@ namespace TheGame.States
             // Load dialogue data
             var dialogues = LoadDialogues();
 
-            // ── Room (3,2) — Old Man Elam (starting meadow) ──
-            if (dialogues.TryGetValue("old_man_elam", out var elamData))
+            // Helper to create NPC from dialogue data
+            void AddNPCFromData(string id, int rx, int ry, float localX, float localY,
+                string questFlag = null, Func<bool> questCheck = null, Action onInteract = null)
             {
-                var elam = new NPC("old_man_elam", elamData.name,
-                    new Vector2(3 * w + 480, 2 * h + 120), elamData.pages);
-                elam.SetQuestDialogue(elamData.questPages,
-                    () => _player.Inventory.HasItem("boomerang"));
-                elam.OnInteracted = () => GameRef.QuestFlags.Add("spoke_to_elam");
-                AddInteractable(elam, 3, 2);
+                if (!dialogues.TryGetValue(id, out var data)) return;
+                var npc = new NPC(id, data.name,
+                    new Vector2(rx * w + localX, ry * h + localY), data.pages);
+                if (questCheck != null && data.questPages.Count > 0)
+                    npc.SetQuestDialogue(data.questPages, questCheck);
+                if (onInteract != null)
+                    npc.OnInteracted = onInteract;
+                else if (questFlag != null)
+                    npc.OnInteracted = () => GameRef.QuestFlags.Add(questFlag);
+                AddInteractable(npc, rx, ry);
             }
 
-            // ── Room (3,2) — Direction sign ──
-            var sign1 = new SignPost(new Vector2(3 * w + 560, 2 * h + 400),
-                "WEST: RACCOON DEN. EAST: RUINS. SOUTH: VILLAGE. NORTH: PEAKS.");
-            AddInteractable(sign1, 3, 2);
+            // ════════════════════════════════════════════════
+            //  Starting Area — Room (5,3)
+            // ════════════════════════════════════════════════
 
-            // ── Room (2,2) — Warning sign (raccoon den) ──
-            var sign2 = new SignPost(new Vector2(2 * w + 120, 2 * h + 380),
-                "DANGER. THE RACCOON GUARDIAN LURKS HERE. TURN BACK.");
-            AddInteractable(sign2, 2, 2);
+            AddNPCFromData("old_man_elam", 5, 3, 480, 120,
+                questFlag: "spoke_to_elam",
+                questCheck: () => _player.Inventory.HasItem("boomerang"));
 
-            // ── Room (4,3) — Silent Guard (dungeon gate) ──
-            if (dialogues.TryGetValue("silent_guard", out var guardData))
-            {
-                var guard = new NPC("silent_guard", guardData.name,
-                    new Vector2(4 * w + 370, 3 * h + 180), guardData.pages);
-                guard.SetQuestDialogue(guardData.questPages,
-                    () => _player.Inventory.HasItem("boomerang"));
-                AddInteractable(guard, 4, 3);
-            }
+            AddInteractable(new SignPost(new Vector2(5 * w + 560, 3 * h + 400),
+                "SOUTH: VILLAGE. WEST: RACCOON DEN. EAST: RUINS. NORTH: PEAKS."), 5, 3);
 
-            // ── Room (2,3) — Mysterious Pot (quiet village) ──
-            if (dialogues.TryGetValue("mysterious_pot", out var potData))
-            {
-                var pot = new NPC("mysterious_pot", potData.name,
-                    new Vector2(2 * w + 400, 3 * h + 250), potData.pages);
-                pot.SetQuestDialogue(potData.questPages,
-                    () => GameRef.QuestFlags.Contains("raccoon_defeated"));
-                AddInteractable(pot, 2, 3);
-            }
+            // ════════════════════════════════════════════════
+            //  Village Zone — Row 4 (rooms 4-8)
+            // ════════════════════════════════════════════════
 
-            // ── Room (4,2) — Crystal sign (east woods) ──
-            var sign3 = new SignPost(new Vector2(4 * w + 300, 2 * h + 400),
-                "THE ECHO WAS LAST SEEN HERE. STRIKE THE CRYSTALS.");
-            AddInteractable(sign3, 4, 2);
+            // Village entrance sign
+            AddInteractable(new SignPost(new Vector2(5 * w + 400, 4 * h + 40),
+                "WELCOME TO RESONANCE VILLAGE. THE LAST SETTLEMENT THAT STILL ECHOES."), 5, 4);
 
-            // ── Room (5,3) — Deep cave hint ──
-            var sign4 = new SignPost(new Vector2(5 * w + 400, 3 * h + 380),
-                "THE RESONANCE GROWS STRONGER. THE TUNING FORK IS NEAR.");
-            AddInteractable(sign4, 5, 3);
+            // Village Elder Kaelen (outside, in front of elder's house)
+            AddNPCFromData("village_elder", 6, 4, 560, 250,
+                questFlag: "spoke_to_elder",
+                questCheck: () => GameRef.QuestFlags.Contains("dungeon_cleared"));
 
-            // ── Room (3,1) — Highland border sign ──
-            var sign5 = new SignPost(new Vector2(3 * w + 400, h + 380),
-                "THE RESONANT PEAKS LIE NORTH. THE AIR HUMS WITH ANCIENT POWER.");
-            AddInteractable(sign5, 3, 1);
+            // Village Guard at entrance
+            AddNPCFromData("village_guard", 5, 4, 100, 240,
+                questCheck: () => GameRef.QuestFlags.Contains("raccoon_defeated"));
 
-            // ── Room (3,3) — South woods sign ──
-            var sign6 = new SignPost(new Vector2(3 * w + 200, 3 * h + 100),
-                "THE SILENT OUTSKIRTS BEGIN HERE. TREAD CAREFULLY.");
-            AddInteractable(sign6, 3, 3);
+            // Child NPC playing in village
+            AddNPCFromData("village_child", 6, 4, 350, 350,
+                questCheck: () => GameRef.QuestFlags.Contains("spoke_to_elder"));
 
-            // ── Room (0,2) — Far west forest sign ──
-            var sign7 = new SignPost(new Vector2(300, 2 * h + 400),
-                "THE DEEP WOODS. FEW RETURN FROM HERE.");
-            AddInteractable(sign7, 0, 2);
+            // Herbalist near inn
+            AddNPCFromData("herbalist", 7, 4, 150, 250,
+                questCheck: () => _player.Inventory.GetQuantity("mushroom") >= 3);
 
-            // ── Room (6,2) — Far east edge sign ──
-            var sign8 = new SignPost(new Vector2(6 * w + 400, 2 * h + 100),
-                "THE EDGE OF THE ECHOING WOODS. BEYOND LIES SILENCE.");
-            AddInteractable(sign8, 6, 2);
+            // Mother NPC near elder's house
+            AddNPCFromData("village_mother", 6, 4, 400, 160,
+                questCheck: () => GameRef.QuestFlags.Contains("dungeon_cleared"));
 
-            // ── Treasure Chests ──
+            // Village exit sign (south)
+            AddInteractable(new SignPost(new Vector2(6 * w + 400, 4 * h + 430),
+                "BEYOND HERE: THE SILENT OUTSKIRTS. THE STILLNESS IS STRONG."), 6, 4);
 
-            // Room (2,2) — hidden chest in the forest
+            // ════════════════════════════════════════════════
+            //  Echoing Woods — Rows 2-3
+            // ════════════════════════════════════════════════
+
+            // Raccoon den warning
+            AddInteractable(new SignPost(new Vector2(4 * w + 120, 3 * h + 380),
+                "DANGER. THE RACCOON GUARDIAN LURKS HERE. TURN BACK."), 4, 3);
+
+            // Dungeon gate guard
+            AddNPCFromData("silent_guard", 7, 2, 370, 180,
+                questCheck: () => _player.Inventory.HasItem("boomerang"));
+
+            // Mysterious Pot
+            AddNPCFromData("mysterious_pot", 3, 3, 400, 250,
+                questCheck: () => GameRef.QuestFlags.Contains("raccoon_defeated"));
+
+            // Crystal sign
+            AddInteractable(new SignPost(new Vector2(6 * w + 300, 3 * h + 400),
+                "THE ECHO WAS LAST SEEN HERE. STRIKE THE CRYSTALS."), 6, 3);
+
+            // Wandering Merchant in deep woods
+            AddNPCFromData("wandering_merchant", 2, 3, 400, 200,
+                questCheck: () => GameRef.QuestFlags.Contains("spoke_to_elder"));
+
+            // ════════════════════════════════════════════════
+            //  Resonant Peaks — Rows 0-1
+            // ════════════════════════════════════════════════
+
+            AddInteractable(new SignPost(new Vector2(5 * w + 400, h + 380),
+                "THE RESONANT PEAKS. THE AIR HUMS WITH ANCIENT POWER."), 5, 1);
+
+            // Lost Scholar in the peaks
+            AddNPCFromData("lost_scholar", 5, 0, 300, 200,
+                questCheck: () => GameRef.QuestFlags.Contains("dungeon_cleared"));
+
+            // ════════════════════════════════════════════════
+            //  Silent Outskirts — Rows 5-6
+            // ════════════════════════════════════════════════
+
+            AddInteractable(new SignPost(new Vector2(5 * w + 200, 5 * h + 100),
+                "THE SILENT OUTSKIRTS. TREAD CAREFULLY."), 5, 5);
+
+            AddInteractable(new SignPost(new Vector2(300, 3 * h + 400),
+                "THE DEEP WOODS. FEW RETURN FROM HERE."), 0, 3);
+
+            AddInteractable(new SignPost(new Vector2(9 * w + 400, 3 * h + 100),
+                "THE EDGE OF THE KNOWN WORLD. BEYOND LIES NOTHING."), 9, 3);
+
+            // ════════════════════════════════════════════════
+            //  Treasure Chests
+            // ════════════════════════════════════════════════
+
+            // Forest chest with boomerang
             AddInteractable(new TreasureChest(
-                new Vector2(2 * w + 600, 2 * h + 350), "forest_chest", 20, "boomerang", "Boomerang"), 2, 2);
+                new Vector2(3 * w + 600, 3 * h + 350), "forest_chest", 20,
+                "boomerang", "Boomerang"), 3, 3);
 
-            // Room (4,2) — east plains chest
+            // East woods chest
             AddInteractable(new TreasureChest(
-                new Vector2(4 * w + 150, 2 * h + 200), "plains_chest", 30), 4, 2);
+                new Vector2(7 * w + 150, 3 * h + 200), "plains_chest", 30), 7, 3);
 
-            // Room (3,1) — highlands chest with bow
+            // Highlands chest with bow
             AddInteractable(new TreasureChest(
-                new Vector2(3 * w + 600, h + 150), "highland_chest", 15, "bow", "Bow"), 3, 1);
+                new Vector2(5 * w + 600, h + 150), "highland_chest", 15,
+                "bow", "Bow"), 5, 1);
 
-            // Room (5,3) — outskirts chest with bombs
+            // Outskirts chest with bombs
             AddInteractable(new TreasureChest(
-                new Vector2(5 * w + 300, 3 * h + 250), "outskirts_chest", 25, "bomb", "Bombs"), 5, 3);
+                new Vector2(6 * w + 300, 5 * h + 250), "outskirts_chest", 25,
+                "bomb", "Bombs"), 6, 5);
 
-            // Room (1,2) — deep woods chest with health potion
+            // Deep woods chest with health potion
             AddInteractable(new TreasureChest(
-                new Vector2(w + 400, 2 * h + 300), "deepwoods_chest", 10, "health_potion", "Health Potion"), 1, 2);
+                new Vector2(w + 400, 3 * h + 300), "deepwoods_chest", 10,
+                "health_potion", "Health Potion"), 1, 3);
 
-            // Room (4,3) — swamp edge chest
+            // Mountain chest
             AddInteractable(new TreasureChest(
-                new Vector2(4 * w + 500, 3 * h + 350), "swamp_chest", 40), 4, 3);
+                new Vector2(8 * w + 500, 2 * h + 350), "swamp_chest", 40), 8, 2);
 
-            // Room (6,1) — far east mountain chest with axe
+            // Far east mountain chest with axe
             AddInteractable(new TreasureChest(
-                new Vector2(6 * w + 200, h + 300), "mountain_chest", 20, "axe", "Axe"), 6, 1);
+                new Vector2(9 * w + 200, h + 300), "mountain_chest", 20,
+                "axe", "Axe"), 9, 1);
+
+            // Village hidden chest
+            AddInteractable(new TreasureChest(
+                new Vector2(8 * w + 400, 4 * h + 300), "village_chest", 50), 8, 4);
         }
 
         private void AddInteractable(Interactable interactable, int roomX, int roomY)
@@ -1102,62 +1165,59 @@ namespace TheGame.States
             int w = Game1.ScreenWidth;
             int h = Game1.ScreenHeight;
 
-            // ── Room (2,1) — Blacksmith building ──
-            int bx = 2 * w + 580; // building top-left X (world space)
-            int by = h + 50;      // building top-left Y
-            int bw = 128;         // building width
-            int bh = 120;         // building height (walls only, roof extends above)
-            int doorW = 36;
-            int doorX = bx + bw / 2 - doorW / 2;
-            int doorY = by + bh - 4;
-
-            // Add building definition for rendering
-            _buildings.Add(new Building
+            // Helper to add a building with collision + warp
+            void AddBuilding(int rx, int ry, int localX, int localY, int bw, int bh,
+                int doorW, string label, string interiorId, Vector2 spawnInside)
             {
-                X = bx, Y = by, Width = bw, Height = bh,
-                DoorX = doorX, DoorY = doorY, DoorW = doorW, DoorH = 8,
-                Label = "BLACKSMITH"
-            });
+                int bx = rx * w + localX;
+                int by = ry * h + localY;
+                int doorX = bx + bw / 2 - doorW / 2;
+                int doorY = by + bh - 4;
 
-            // Collision walls around the building (leaving door opening)
-            AddWall(2, 1, new SolidRect(bx, by, bw, 32));              // top wall / roof base
-            AddWall(2, 1, new SolidRect(bx, by + 32, 16, bh - 32));    // left wall
-            AddWall(2, 1, new SolidRect(bx + bw - 16, by + 32, 16, bh - 32)); // right wall
-            AddWall(2, 1, new SolidRect(bx, by + bh - 4, doorX - bx, 16));     // bottom-left
-            AddWall(2, 1, new SolidRect(doorX + doorW, by + bh - 4, bx + bw - (doorX + doorW), 16)); // bottom-right
+                _buildings.Add(new Building
+                {
+                    X = bx, Y = by, Width = bw, Height = bh,
+                    DoorX = doorX, DoorY = doorY, DoorW = doorW, DoorH = 8,
+                    Label = label
+                });
 
-            // Warp tile at the door
-            _warpTiles.Add(WarpTile.ToInterior(
-                new Rectangle(doorX, doorY, doorW, 12),
-                "blacksmith_house",
-                new Vector2(160, 180))); // spawn inside the house
+                AddWall(rx, ry, new SolidRect(bx, by, bw, 32));
+                AddWall(rx, ry, new SolidRect(bx, by + 32, 16, bh - 32));
+                AddWall(rx, ry, new SolidRect(bx + bw - 16, by + 32, 16, bh - 32));
+                AddWall(rx, ry, new SolidRect(bx, by + bh - 4, doorX - bx, 16));
+                AddWall(rx, ry, new SolidRect(doorX + doorW, by + bh - 4,
+                    bx + bw - (doorX + doorW), 16));
 
-            // ── Room (3,2) — Hero's House ──
-            int hx = 3 * w + 100;
-            int hy = 2 * h + 50;
-            int hbw = 160;
-            int hbh = 140;
-            int hdoorW = 40;
-            int hdoorX = hx + hbw / 2 - hdoorW / 2;
-            int hdoorY = hy + hbh - 4;
+                _warpTiles.Add(WarpTile.ToInterior(
+                    new Rectangle(doorX, doorY, doorW, 12),
+                    interiorId, spawnInside));
+            }
 
-            _buildings.Add(new Building
-            {
-                X = hx, Y = hy, Width = hbw, Height = hbh,
-                DoorX = hdoorX, DoorY = hdoorY, DoorW = hdoorW, DoorH = 8,
-                Label = "HERO'S HOUSE"
-            });
+            // ── Room (5,3) — Hero's House (starting area) ──
+            AddBuilding(5, 3, 100, 50, 160, 140, 40,
+                "HOME", "hero_house", new Vector2(180, 250));
 
-            AddWall(3, 2, new SolidRect(hx, hy, hbw, 40));
-            AddWall(3, 2, new SolidRect(hx, hy + 40, 20, hbh - 40));
-            AddWall(3, 2, new SolidRect(hx + hbw - 20, hy + 40, 20, hbh - 40));
-            AddWall(3, 2, new SolidRect(hx, hdoorY, hdoorX - hx, 10));
-            AddWall(3, 2, new SolidRect(hdoorX + hdoorW, hdoorY, hx + hbw - (hdoorX + hdoorW), 10));
+            // ── Village zone (row 4) ──
 
-            _warpTiles.Add(WarpTile.ToInterior(
-                new Rectangle(hdoorX, hdoorY, hdoorW, 15),
-                "hero_house",
-                new Vector2(180, 250)));
+            // Room (5,4) — General Store
+            AddBuilding(5, 4, 300, 50, 140, 120, 36,
+                "GENERAL STORE", "shop_house", new Vector2(160, 180));
+
+            // Room (6,4) — Blacksmith
+            AddBuilding(6, 4, 150, 60, 128, 120, 36,
+                "BLACKSMITH", "blacksmith_house", new Vector2(160, 180));
+
+            // Room (7,4) — The Echoing Inn
+            AddBuilding(7, 4, 300, 50, 150, 130, 40,
+                "THE ECHOING INN", "inn_house", new Vector2(192, 200));
+
+            // Room (6,4) — Elder's House
+            AddBuilding(6, 4, 500, 60, 140, 120, 36,
+                "ELDER'S HOUSE", "elder_house", new Vector2(180, 250));
+
+            // ── Room (7,2) — Dungeon entrance warp ──
+            _warpTiles.Add(WarpTile.ToDungeon(
+                new Rectangle(7 * w + 370, 2 * h + 20, 60, 20)));
         }
 
         private struct DialogueData
@@ -1975,26 +2035,29 @@ namespace TheGame.States
             _player.Inventory.DrawHUD(sb, px);
 
             // ── Room indicator (small minimap) ──
-            int indicatorX = Game1.ScreenWidth / 2 - WorldRoomsX * 8;
-            int indicatorY = 8;
-            // Minimap background
-            sb.Draw(px, new Rectangle(indicatorX - 3, indicatorY - 3,
-                WorldRoomsX * 16 + 6, WorldRoomsY * 12 + 6), Color.Black * 0.5f);
+            int cellW = 10, cellH = 8;
+            int indicatorX = Game1.ScreenWidth / 2 - WorldRoomsX * cellW / 2;
+            int indicatorY = 6;
+            sb.Draw(px, new Rectangle(indicatorX - 2, indicatorY - 2,
+                WorldRoomsX * cellW + 4, WorldRoomsY * cellH + 4), Color.Black * 0.5f);
             for (int ry = 0; ry < WorldRoomsY; ry++)
             {
                 for (int rx = 0; rx < WorldRoomsX; rx++)
                 {
                     bool isCurrent = (rx == _camera.RoomX && ry == _camera.RoomY);
-                    Color c = isCurrent ? Color.White : Color.Gray * 0.4f;
+                    // Color rooms by biome
+                    Color c;
+                    if (isCurrent) c = Color.White;
+                    else if (ry == 4 && rx >= 4 && rx <= 8) c = new Color(120, 100, 60) * 0.5f; // village
+                    else c = Color.Gray * 0.3f;
                     sb.Draw(px, new Rectangle(
-                        indicatorX + rx * 16, indicatorY + ry * 12, 14, 10), c);
-                    // Border
+                        indicatorX + rx * cellW, indicatorY + ry * cellH, cellW - 1, cellH - 1), c);
                     if (isCurrent)
                     {
-                        sb.Draw(px, new Rectangle(indicatorX + rx * 16 - 1, indicatorY + ry * 12 - 1, 16, 1), Color.Gold);
-                        sb.Draw(px, new Rectangle(indicatorX + rx * 16 - 1, indicatorY + ry * 12 + 10, 16, 1), Color.Gold);
-                        sb.Draw(px, new Rectangle(indicatorX + rx * 16 - 1, indicatorY + ry * 12, 1, 10), Color.Gold);
-                        sb.Draw(px, new Rectangle(indicatorX + rx * 16 + 14, indicatorY + ry * 12, 1, 10), Color.Gold);
+                        sb.Draw(px, new Rectangle(indicatorX + rx * cellW - 1, indicatorY + ry * cellH - 1, cellW + 1, 1), Color.Gold);
+                        sb.Draw(px, new Rectangle(indicatorX + rx * cellW - 1, indicatorY + ry * cellH + cellH - 1, cellW + 1, 1), Color.Gold);
+                        sb.Draw(px, new Rectangle(indicatorX + rx * cellW - 1, indicatorY + ry * cellH, 1, cellH - 1), Color.Gold);
+                        sb.Draw(px, new Rectangle(indicatorX + rx * cellW + cellW - 1, indicatorY + ry * cellH, 1, cellH - 1), Color.Gold);
                     }
                 }
             }

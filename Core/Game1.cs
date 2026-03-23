@@ -25,7 +25,9 @@ namespace TheGame.Core
         Dungeon,
         Paused,
         Inventory,
-        GameOver
+        GameOver,
+        Shop,
+        Blacksmith
     }
 
     public class Game1 : Game
@@ -52,6 +54,8 @@ namespace TheGame.Core
         private States.InteriorState _interiorState;
         private States.InventoryState _inventoryState;
         private States.GameOverState _gameOverState;
+        private States.ShopState _shopState;
+        private States.BlacksmithState _blacksmithState;
 
         // ── Shared Player (persists across states) ──
         public Player SharedPlayer { get; private set; }
@@ -104,8 +108,8 @@ namespace TheGame.Core
 
             // ── Create shared player ──
             SharedPlayer = new Player(new Vector2(
-                3 * ScreenWidth + ScreenWidth / 2f - 32,
-                2 * ScreenHeight + ScreenHeight / 2f - 32));
+                5 * ScreenWidth + ScreenWidth / 2f - 32,
+                3 * ScreenHeight + ScreenHeight / 2f - 32));
             SharedPlayer.LoadContent();
 
             // Load item catalog and give starter items
@@ -121,6 +125,8 @@ namespace TheGame.Core
             _interiorState = new States.InteriorState(this, Content);
             _inventoryState = new States.InventoryState(this, Content);
             _gameOverState = new States.GameOverState(this, Content);
+            _shopState = new States.ShopState(this, Content);
+            _blacksmithState = new States.BlacksmithState(this, Content);
         }
 
         // ── Public API for state transitions ──
@@ -189,6 +195,22 @@ namespace TheGame.Core
             CurrentState = GameState.GameOver;
         }
 
+        /// <summary>Opens the shop UI overlay.</summary>
+        public void OpenShop()
+        {
+            _stateBeforePause = CurrentState;
+            _shopState.Open(SharedPlayer);
+            CurrentState = GameState.Shop;
+        }
+
+        /// <summary>Opens the blacksmith UI overlay.</summary>
+        public void OpenBlacksmith()
+        {
+            _stateBeforePause = CurrentState;
+            _blacksmithState.Open(SharedPlayer);
+            CurrentState = GameState.Blacksmith;
+        }
+
         public void QuitGame() => Exit();
 
         // ── Core Loop ──
@@ -237,6 +259,12 @@ namespace TheGame.Core
                         break;
                     case GameState.GameOver:
                         _gameOverState.Update(gameTime);
+                        break;
+                    case GameState.Shop:
+                        _shopState.Update(gameTime);
+                        break;
+                    case GameState.Blacksmith:
+                        _blacksmithState.Update(gameTime);
                         break;
                 }
             }
@@ -303,6 +331,22 @@ namespace TheGame.Core
                     break;
                 case GameState.GameOver:
                     _gameOverState.Draw(_spriteBatch);
+                    break;
+                case GameState.Shop:
+                    switch (_stateBeforePause)
+                    {
+                        case GameState.Interior: _interiorState.Draw(_spriteBatch); break;
+                        case GameState.Overworld: _overworldState.Draw(_spriteBatch); break;
+                    }
+                    _shopState.Draw(_spriteBatch);
+                    break;
+                case GameState.Blacksmith:
+                    switch (_stateBeforePause)
+                    {
+                        case GameState.Interior: _interiorState.Draw(_spriteBatch); break;
+                        case GameState.Overworld: _overworldState.Draw(_spriteBatch); break;
+                    }
+                    _blacksmithState.Draw(_spriteBatch);
                     break;
             }
 

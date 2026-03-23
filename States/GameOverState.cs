@@ -78,8 +78,8 @@ namespace TheGame.States
                         var player = GameRef.SharedPlayer;
                         player.SetHealth(player.MaxHealth);
                         player.Position = new Microsoft.Xna.Framework.Vector2(
-                            3 * Game1.ScreenWidth + Game1.ScreenWidth / 2f - 32,
-                            2 * Game1.ScreenHeight + Game1.ScreenHeight / 2f - 32);
+                            5 * Game1.ScreenWidth + Game1.ScreenWidth / 2f - 32,
+                            3 * Game1.ScreenHeight + Game1.ScreenHeight / 2f - 32);
                         GameRef.ChangeState(GameState.Overworld);
                         break;
                     case 1: // Title Screen

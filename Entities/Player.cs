@@ -27,6 +27,12 @@ namespace TheGame.Entities
         // ── Attack Hitbox ──
         public Rectangle AttackHitbox { get; private set; }
         public int AttackDamage { get; set; } = 1;
+
+        public void UpgradeMaxHealth(int amount)
+        {
+            MaxHealth += amount;
+            CurrentHealth = MaxHealth;
+        }
         private const int AttackReach = 36;
         private const int AttackWidth = 28;
 

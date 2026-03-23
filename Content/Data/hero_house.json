@@ -24,8 +24,8 @@
   ],
   "exit": {
     "x": 160, "y": 300, "w": 64, "h": 20,
-    "spawn_x": 2560, "spawn_y": 1155,
-    "room_x": 3, "room_y": 2
+    "spawn_x": 4160, "spawn_y": 1635,
+    "room_x": 5, "room_y": 3
   },
   "npcs": [
     {
